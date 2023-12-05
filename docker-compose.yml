@@ -1,0 +1,17 @@
+version: '3.3'
+
+services:
+  pgdb:
+    container_name: pgdb
+    image: postgres:15.4-alpine
+    restart: always
+    env_file:
+      - ./Adboard/.env
+    environment:
+      - POSTGRES_PASSWORD=${PASSWORD}
+      - POSTGRES_USER=${USER}
+      - POSTGRES_DB=${NAME}
+    volumes:
+      - ./Adboard/pgdata:/var/lib/postgresql/data
+    ports:
+      - "5437:5432"
