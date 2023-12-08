@@ -1,0 +1,43 @@
+{% extends 'cabinet/flatpages/default.html' %}
+{% load cabinet_tags %}
+
+{% block header %}
+<h2>Приветствуем! {{profile.username}} ({{profile.first_name}} {{profile.last_name}})</h2>
+{% endblock header %}
+
+{% block avatar %}
+<div class="avatar-img">
+    {% if profile.photo %}
+        <img src="{{profile.photo.url}}" alt="Аватарка"/>
+    {% else %}
+        <img src="{% get_media_prefix %}default\Orc.jpg" alt="Аватарка"/>
+    {% endif %}
+</div>
+{% endblock avatar %}
+
+{% block avatar-content %}
+<div class="avatar-content">
+    <ul class="avatar-content-ul">
+        <li><a href="#">Редактировать</a></li>
+        <li><a href="#">Выйти</a></li>
+    </ul>
+</div>
+{% endblock avatar-content %}
+
+{% block nav-content %}
+<div class="nav-content">
+    <ul>
+        <li><a href="#">Добавить публикацию</a></li>
+        <li><a href="#">На главную</a></li>
+    </ul>
+</div>
+{% endblock nav-content %}
+
+{% block article-content %}
+<div>
+    <p>mbnnmbn</p>
+</div>
+<div>
+    <p>mbnnmbn</p>
+</div>
+{% endblock article-content %}

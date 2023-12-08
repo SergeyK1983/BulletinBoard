@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en, ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="{% static 'cabinet/images/favicon.png' %}" type="image/svg+xml"/> <!-- 32×32 -->
+    <link rel="stylesheet" href="{% static 'cabinet/css/styles.css' %}" type="text/css">
+    <title>Профиль: {% block title %}{% endblock title %}</title>
+</head>
+<body>
+<header>
+    {% block header %}
+    {% endblock header %}
+</header>
+
+<main>
+    <div class="base_container">
+        <div class="block block-left">
+            <div class="in_left">
+                {% block avatar %}
+                {% endblock avatar %}
+
+                {% block avatar-content %}
+                {% endblock avatar-content %}
+            </div>
+            <div class="in_left">
+                {% block nav-content %}
+                {% endblock nav-content %}
+            </div>
+        </div>
+        <div class="block block-right">
+            {% block article-content %}
+            {% endblock article-content %}
+        </div>
+    </div>
+</main>
+
+<footer>
+    <h2>Карачаров Сергей, email: ssp-serg@yandex.ru</h2>
+</footer>
+</body>
+</html>
