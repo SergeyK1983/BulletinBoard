@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'cabinet.apps.CabinetConfig',
     'coment.apps.ComentConfig',
 
+    'corsheaders',
     'rest_framework',
+    'django_filters',
 ]
 
 REST_FRAMEWORK = {
@@ -62,7 +64,18 @@ REST_FRAMEWORK = {
     ],
 }
 
+CORS_ORIGIN_ALLOW_ALL = True  # added to solve CORS
+CORS_ALLOW_HEADERS = ('content-disposition', 'accept-encoding',
+                      'content-type', 'accept', 'origin', 'Authorization',
+                      'access-control-allow-methods', 'access-control-allow-origin',
+                      'access-control-allow-credentials')
+
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:5173',
+# ]
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # added to solve CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

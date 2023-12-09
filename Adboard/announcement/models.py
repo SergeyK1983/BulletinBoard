@@ -23,7 +23,7 @@ class Post(models.Model):
         ordering = ['id']
 
     def preview(self):
-        article = self.article[:100]
+        article = self.article[:150]
         return article + ' ...'
 
     @property

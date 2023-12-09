@@ -1,0 +1,119 @@
+
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #faf2f4;
+    height: 8vh;  /*в процентах от экрана*/
+    width: 100%;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    /*align-items: center;*/
+    background-color: #fffff1;
+    height: 100%;
+    width: 100%;
+}
+
+.base_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    /*background-color: yellow;*/
+    min-height: 84vh;
+    width: 90%;
+}
+
+.block {
+    display: flex;
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+    /*flex-direction: column;*/
+    /*background-color: red;*/
+    margin: 0.5%
+}
+
+.block-left {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 20%;
+}
+.block-right {
+    flex-direction: raw;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 80%;
+}
+.post-title {
+    background-color: orange;
+    height: 400px;
+    width: 315px;
+    border-radius: 3%;
+    margin: 8px 0px 8px 8px;
+    /*padding: 2px;*/
+}
+.title-title {
+    /*padding: 1%;*/
+    text-align: center;
+    /*background-color: red;*/
+}
+.post-image {
+    background-color: blue;
+    height: 38%;
+    width: 100%
+}
+.post-image > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /*cover;*/
+}
+.post-previews {
+    width: 90%;
+    margin: 0 auto;  /* центрирует элемент по горизонтали в пределах родительского блока */
+    /*background-color: red;*/
+    /*padding: 1%;*/
+    text-align: justify;
+}
+.post-link {
+    /*padding: 1%;*/
+    text-align: end;
+    /*background-color: green;*/
+}
+.post-link > a  {
+    text-decoration: none;
+}
+.post-link > a:hover  {
+    background: red;
+    color: black;
+}
+.in_left {
+    width: 100%;
+    background-color: green;
+}
+.nav-content {
+    background-color: orange;
+    font-size: 20px;
+    margin: 10px;
+}
+
+
+footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: gray;
+    height: 8vh;
+    width: 100%;
+}
