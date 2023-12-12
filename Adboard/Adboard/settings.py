@@ -68,7 +68,8 @@ CORS_ORIGIN_ALLOW_ALL = True  # added to solve CORS
 CORS_ALLOW_HEADERS = ('content-disposition', 'accept-encoding',
                       'content-type', 'accept', 'origin', 'Authorization',
                       'access-control-allow-methods', 'access-control-allow-origin',
-                      'access-control-allow-credentials')
+                      'access-control-allow-credentials', 'attribution-reporting', 'run-ad-auction',
+                      'join-ad-interest-group', 'browsing-topics')
 
 # CORS_ALLOWED_ORIGINS = [
 #     'http://localhost:5173',

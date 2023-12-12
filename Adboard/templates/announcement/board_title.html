@@ -8,28 +8,53 @@
 {% block nav-content %}
 <div class="nav-content">
     <ul>
-        <li><a href="#">Добавить публикацию</a></li>
-        <li><a href="#">На главную</a></li>
+        <li><a href="#">Регистрация</a></li>
+        <li><a href="#">Войти</a></li>
     </ul>
+</div>
+<div class="nav-content">
+    <ul>
+        <li><a href="#">Добавить объявление</a></li>
+    </ul>
+</div>
+<div class="nav-content">
+    <h3>Фильтрация</h3>
 </div>
 {% endblock nav-content %}
 
 {% block article-content %}
 {% for post in board_list %}
 <div class="post-title">
-    <div class="title-title">
-        <h3>{{post.title}}</h3>
-    </div>
-    {% if post.images %}
-        <div class="post-image">
-            <img src="{{post.images.url}}" alt="Image"/>
+    <div class="post-top_side">
+        <div class="title-title">
+            <h3>{{post.title|truncatechars:30}}</h3>
         </div>
-    {% endif %}
-    <div class="post-previews">
-        <p>{{post.preview}}</p>
+        {% if post.images %}
+            <div class="post-image">
+                <img src="{{post.images.url}}" alt="Image"/>
+            </div>
+        {% endif %}
+        <div class="post-previews">
+            <p>{{post.preview}}</p>
+        </div>
     </div>
-    <div class="post-link">
-        <a href="#">Смотреть</a>
+    <div class="post-underside">
+        <div class="line">
+            <div class="line-1">
+                <p>Кат.: {{post.category.get_categories_display}}</p>
+            </div>
+            <div class="line-1">
+                <p>Автор: {{post.author.username}}</p>
+            </div>
+        </div>
+        <div class="line">
+            <div class="line-1">
+                <p>{{post.date_create}}</p>
+            </div>
+            <div class="post-link line-1">
+                <a href="{{post.get_absolute_url}}">Смотреть</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endfor %}

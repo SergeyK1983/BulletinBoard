@@ -1,0 +1,60 @@
+{% extends 'announcement/flatpages/default.html' %}
+
+{% block title %}
+Автор
+{% endblock title %}
+
+{% block header %}
+    <h2>Объявление/публикация</h2>
+{% endblock header %}
+
+{% block nav-content %}
+<div class="nav-content">
+    <ul>
+        <li><a href="#">Регистрация</a></li>
+        <li><a href="#">Войти</a></li>
+    </ul>
+</div>
+<div class="nav-content">
+    <ul>
+        <li><a href="{% url 'board_list' %}">К публикациям</a></li>
+    </ul>
+</div>
+{% endblock nav-content %}
+
+{% block article-content %}
+<div class="page-container">
+{% for p in board_page %}
+
+    <div class="page-item-1">
+        <span>Автор: {{p.author.username}}</span>
+    </div>
+    <div class="page-item-2">
+        <span>Категория: {{p.category.get_categories_display}}</span>
+    </div>
+    <div class="page-item-3">
+        <span>Дата публикации: {{p.date_create}}</span>
+    </div>
+    <div class="page-item-4">
+        <h3>{{p.title}}</h3>
+    </div>
+    {% if p.images %}
+    <div class="page-item-5">
+        <img src="{{p.images.url}}" alt="Картинка"/>
+    </div>
+    {% endif %}
+    <div class="page-item-6">
+        <p>{{p.article|linebreaks}}</p>
+    </div>
+    {% if p.files %}
+    <div class="page-item-7">
+        <embed src="{{p.files.url}}" type="image/gif">
+    </div>
+    {% endif %}
+
+{% endfor %}
+<div class="page-item-8">
+    <p>Комментарии</p>
+</div>
+</div>
+{% endblock article-content %}

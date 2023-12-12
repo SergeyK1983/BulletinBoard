@@ -28,16 +28,31 @@
 <div class="nav-content">
     <ul>
         <li><a href="#">Добавить публикацию</a></li>
-        <li><a href="#">На главную</a></li>
+        <li><a href="{% url 'board_list' %}">К публикациям</a></li>
     </ul>
 </div>
 {% endblock nav-content %}
 
 {% block article-content %}
-<div>
-    <p>mbnnmbn</p>
+<!--<a href=" {% url 'profilelist' profile.id %} ">Показать мои статьи</a>
+{% block article-content-list %}
+{% endblock article-content-list %}-->
+<div class="content-container">
+    <h2>Мои объявления</h2>
+    {% for p in posts %}
+    <p> {{p.title}} </p>
+    <p> {{p.category}} </p>
+    <p> {{p.article}} </p>
+    Комментарии:<br>
+        {% for com in comments %}
+            {% if p.title == com.to_post.title %}
+                {{com.date_create}} - {{com.author.username}}: {{com.comment}}<br>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 </div>
-<div>
-    <p>mbnnmbn</p>
-</div>
+
+<aside class="content-bar">
+    <h3>Фильтрация</h3>
+</aside>
 {% endblock article-content %}

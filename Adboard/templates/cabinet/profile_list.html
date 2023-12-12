@@ -1,0 +1,14 @@
+
+
+{% block article-content-list %}
+<div class="content-container">
+    <h2>Мои объявления</h2>
+
+    {% for p in profilelist %}
+    <p> {{p.title}} </p>
+    <p> {{p.category}} </p>
+    <p> {{p.article}} </p>
+    {% endfor %}
+
+</div>
+{% endblock article-content-list %}

@@ -40,7 +40,7 @@ class Post(models.Model):
         return f"{self.author}: {self.category} - {self.title[:20]}"
 
     def get_absolute_url(self):
-        return reverse(viewname='post', kwargs={'pk': self.id, 'name': self.author})
+        return reverse(viewname='board_page', kwargs={'pk': self.id, })  # 'name': self.author})
 
 
 class Category(models.Model):

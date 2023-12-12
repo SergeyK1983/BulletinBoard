@@ -9,7 +9,7 @@ header {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    background-color: #faf2f4;
+    background-color: #d5e7f7;
     height: 8vh;  /*в процентах от экрана*/
     width: 100%;
 }
@@ -29,29 +29,27 @@ main {
     flex-direction: row;
     justify-content: flex-start;
     align-items: stretch;
-    background-color: #ffff11;
+    /*background-color: #ffff11;*/
     min-height: 84vh;
-    /*min-height: 640px;*/
     width: 90%;
 }
 
 .block {
     display: flex;
-    flex-direction: column;
-    background-color: #ff3f11;
     margin: 0.5%
 }
 
 .block-left {
+    flex-direction: column;
     align-items: center;
     width: 20%;
 }
 .block-right {
+    flex-direction: row;
     align-items: flex-start;
     width: 80%;
 }
 .in_left {
-    background-color: green;
 }
 .in_left:nth-child(2) {
     align-self: flex-start;
@@ -62,7 +60,6 @@ main {
     font-size: 20px;
 }
 .nav-content {
-    background-color: orange;
     font-size: 20px;
     margin: 10px;
 }
@@ -84,12 +81,23 @@ main {
     list-style-type: none;
 }
 
+.content-container {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+}
+.content-bar {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+}
+
 footer {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    background-color: gray;
+    background-color: #333635;
     height: 8vh;
     width: 100%;
 }
