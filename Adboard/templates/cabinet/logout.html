@@ -1,0 +1,10 @@
+{% extends 'cabinet/flatpages/default.html' %}
+
+{% block article-content %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Выйти</button>
+</form>
+
+<h3>Вы вышли из системы</h3>
+{% endblock article-content %}

@@ -6,17 +6,14 @@
 
 
 {% block nav-content %}
+{% if request.user.is_authenticated %}
 <div class="nav-content">
     <ul>
-        <li><a href="#">Регистрация</a></li>
-        <li><a href="#">Войти</a></li>
-    </ul>
-</div>
-<div class="nav-content">
-    <ul>
+        <li><a href="{{profile.user.get_absolute_url}}">Моя страница</a></li>
         <li><a href="#">Добавить объявление</a></li>
     </ul>
 </div>
+{% endif %}
 <div class="nav-content">
     <h3>Фильтрация</h3>
 </div>

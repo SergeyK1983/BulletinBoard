@@ -17,6 +17,18 @@
     <div class="base_container">
         <div class="block block-left">
             <div class="in_left">
+                <div class="nav-content">
+                    <ul>
+                        {% if request.user.is_authenticated %}
+                        <li>{{user.username}}</li>
+                        <li>({{user.first_name}} {{user.last_name}})</li>
+                        <li><a href="{% url 'logout' %}">Выйти</a></li>
+                        {% else %}
+                        <li><a href="{% url 'register' %}">Регистрация</a></li>
+                        <li><a href="{% url 'login' %}">Войти</a></li>
+                        {% endif%}
+                    </ul>
+                </div>
                 {% block nav-content %}
                 {% endblock nav-content %}
             </div>

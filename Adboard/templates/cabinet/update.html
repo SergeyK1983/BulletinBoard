@@ -1,0 +1,12 @@
+{% extends 'cabinet/flatpages/default.html' %}
+
+{% block article-content %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Создать</button>
+</form>
+
+{% endblock article-content %}

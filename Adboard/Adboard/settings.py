@@ -68,12 +68,16 @@ CORS_ORIGIN_ALLOW_ALL = True  # added to solve CORS
 CORS_ALLOW_HEADERS = ('content-disposition', 'accept-encoding',
                       'content-type', 'accept', 'origin', 'Authorization',
                       'access-control-allow-methods', 'access-control-allow-origin',
-                      'access-control-allow-credentials', 'attribution-reporting', 'run-ad-auction',
-                      'join-ad-interest-group', 'browsing-topics')
+                      'access-control-allow-credentials', 'attribution-reporting',
+                      )
 
 # CORS_ALLOWED_ORIGINS = [
 #     'http://localhost:5173',
 # ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # added to solve CORS
@@ -173,6 +177,10 @@ STATICFILES_DIRS = []  # [BASE_DIR / 'static']  # список путей для
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'  # формат для Django 3+
+
+# LOGIN_REDIRECT_URL = 'home'  # перенаправлять пользователя после успешной авторизации
+LOGIN_URL = 'login'  # перенаправить неавторизованного пользователя при попытке посетить закрытую страницу сайта
+# LOGOUT_REDIRECT_URL = 'home'  # перенаправляется пользователь после выхода
 
 # DEFAULT_USER_IMAGE = MEDIA_URL + 'cabinet/default.png'
 

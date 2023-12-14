@@ -18,8 +18,8 @@
 {% block avatar-content %}
 <div class="avatar-content">
     <ul class="avatar-content-ul">
-        <li><a href="#">Редактировать</a></li>
-        <li><a href="#">Выйти</a></li>
+        <li><a href="{% url 'update' %}">Редактировать</a></li>
+        <li><a href="{% url 'logout' %}">Выйти</a></li>
     </ul>
 </div>
 {% endblock avatar-content %}
@@ -40,8 +40,8 @@
 <div class="content-container">
     <h2>Мои объявления</h2>
     {% for p in posts %}
-    <p> {{p.title}} </p>
-    <p> {{p.category}} </p>
+    <p> Заголовок: {{p.title}} </p>
+    <p> Категория: {{p.category.get_categories_display}} </p>
     <p> {{p.article}} </p>
     Комментарии:<br>
         {% for com in comments %}
