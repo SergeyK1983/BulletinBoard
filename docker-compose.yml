@@ -15,3 +15,9 @@ services:
       - ./Adboard/pgdata:/var/lib/postgresql/data
     ports:
       - "5437:5432"
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "127.0.0.1:6379:6379"

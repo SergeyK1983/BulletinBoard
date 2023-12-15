@@ -18,7 +18,7 @@
 {% block avatar-content %}
 <div class="avatar-content">
     <ul class="avatar-content-ul">
-        <li><a href="{% url 'update' %}">Редактировать</a></li>
+        <li><a href="{% url 'update' profile.id %}">Редактировать</a></li>
         <li><a href="{% url 'logout' %}">Выйти</a></li>
     </ul>
 </div>

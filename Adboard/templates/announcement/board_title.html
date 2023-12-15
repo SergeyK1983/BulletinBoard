@@ -9,7 +9,7 @@
 {% if request.user.is_authenticated %}
 <div class="nav-content">
     <ul>
-        <li><a href="{{profile.user.get_absolute_url}}">Моя страница</a></li>
+        <li><a href="{% url 'profile' user.id %}">Моя страница</a></li>
         <li><a href="#">Добавить объявление</a></li>
     </ul>
 </div>

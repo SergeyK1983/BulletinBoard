@@ -167,6 +167,17 @@ USE_I18N = True
 
 USE_TZ = True
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}
+
+# две переменные чтобы не путаться
+# SERG - потому что мои переменные, а не джанговские, чтобы не забыть
+SERG_USER_CONFIRMATION_KEY = "user_confirmation_{token}"  # шаблон для ключа
+SERG_USER_CONFIRMATION_TIMEOUT = 60  # время в секундах
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -188,3 +199,12 @@ LOGIN_URL = 'login'  # перенаправить неавторизованно
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', )  # здесь указываем уже свою ПОЛНУЮ почту, с которой будут отправляться письма
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', )
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', )  # ваше имя пользователя
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', )  # пароль от почты
+EMAIL_USE_SSL = True  # Яндекс использует ssl

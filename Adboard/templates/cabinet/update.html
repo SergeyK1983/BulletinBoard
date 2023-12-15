@@ -6,7 +6,11 @@
     {% csrf_token %}
     {{ form.as_p }}
 
-    <button type="submit">Создать</button>
+    <button type="submit">Редактировать</button>
 </form>
+<div>
+    <a href="{% url 'profile' user.id %}">Назад</a>
+    <!--<a href="{{ page_obj.user.get_absolute_url }}">Назад</a>-->
+</div>
 
 {% endblock article-content %}

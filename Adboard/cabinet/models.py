@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from django.shortcuts import reverse
+# from django.shortcuts import reverse
 from django.db import models
+from django.urls import reverse
 
 
 class User(AbstractUser):
@@ -16,4 +17,4 @@ class User(AbstractUser):
         return f"{self.pk} - {self.username}"
 
     def get_absolute_url(self):
-        return reverse(viewname='profile', kwargs={'pk': self.id, })
+        return reverse(viewname='profile', kwargs={'pk': self.pk, })
