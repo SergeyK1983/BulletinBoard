@@ -8,7 +8,7 @@ from rest_framework import generics, permissions
 from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Post
-from .serializer import BoardSerializer, BoardPageSerializer
+from .serializer import BoardSerializer, BoardPageSerializer, BoardPageCreateSerializer
 
 
 class BoardListView(generics.ListAPIView):
@@ -35,4 +35,21 @@ class BoardPageListView(generics.ListAPIView):
     def get(self, request, pk):
         queryset = self.get_queryset()
         return Response({'board_page': queryset})
+
+
+class PageCreateView(generics.CreateAPIView):
+    serializer_class = BoardPageCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class PageUpdateView(generics.UpdateAPIView):
+    serializer_class = BoardPageCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Post.objects.all()
+
+
+class PageDestroyView(generics.DestroyAPIView):
+    serializer_class = BoardPageCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Post.objects.all()
 

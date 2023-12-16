@@ -27,7 +27,7 @@
 {% block nav-content %}
 <div class="nav-content">
     <ul>
-        <li><a href="#">Добавить публикацию</a></li>
+        <li><a href="{% url 'board-page-create' %}">Добавить публикацию</a></li>
         <li><a href="{% url 'board_list' %}">К публикациям</a></li>
     </ul>
 </div>
@@ -42,13 +42,16 @@
     {% for p in posts %}
     <p> Заголовок: {{p.title}} </p>
     <p> Категория: {{p.category.get_categories_display}} </p>
-    <p> {{p.article}} </p>
+    <p> {{p.article}} </p><br>
+    <p><a href="{% url 'board_page-update' p.id %}">Редактировать</a></p>
     Комментарии:<br>
         {% for com in comments %}
             {% if p.title == com.to_post.title %}
                 {{com.date_create}} - {{com.author.username}}: {{com.comment}}<br>
             {% endif %}
         {% endfor %}
+        <p><a href="#">Смотреть комментарии/отклики к объявлению</a></p>
+        <hr color="black" width="100%">
     {% endfor %}
 </div>
 

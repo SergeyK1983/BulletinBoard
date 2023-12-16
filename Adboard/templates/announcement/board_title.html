@@ -10,7 +10,7 @@
 <div class="nav-content">
     <ul>
         <li><a href="{% url 'profile' user.id %}">Моя страница</a></li>
-        <li><a href="#">Добавить объявление</a></li>
+        <li><a href="{% url 'board-page-create' %}">Добавить объявление</a></li>
     </ul>
 </div>
 {% endif %}
