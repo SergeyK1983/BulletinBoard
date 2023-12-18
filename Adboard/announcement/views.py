@@ -8,6 +8,7 @@ from rest_framework import generics, permissions
 from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Post
+from coment.models import CommentaryToAuthor
 from .serializer import BoardSerializer, BoardPageSerializer, BoardPageCreateSerializer
 
 

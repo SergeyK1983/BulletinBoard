@@ -12,7 +12,9 @@
 <div class="nav-content">
     <ul>
         <li><a href="{% url 'board_list' %}">К публикациям</a></li>
-        <li><a href="#">Оставить комментарий</a></li>
+
+        <li><a href="{% url 'create_comment' %}">Оставить комментарий</a></li>
+
     </ul>
 </div>
 {% endblock nav-content %}
@@ -20,7 +22,6 @@
 {% block article-content %}
 <div class="page-container">
 {% for p in board_page %}
-
     <div class="page-item-1">
         <span>Автор: {{p.author.username}}</span>
     </div>
@@ -46,10 +47,17 @@
         <embed src="{{p.files.url}}" type="image/gif">
     </div>
     {% endif %}
-
 {% endfor %}
-<div class="page-item-8">
-    <p>Комментарии</p>
 </div>
+<div>
+{% for p in board_page %}
+    <div class="page-item-8">
+    <p>Комментарии:</p>
+    {% for com in p.post.all %}
+        <p> {{com.author.username}}</p>
+        <p> {{com.comment}}</p>
+    {% endfor %}
+    </div>
+{% endfor %}
 </div>
 {% endblock article-content %}
