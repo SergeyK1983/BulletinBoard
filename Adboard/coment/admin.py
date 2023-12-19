@@ -6,7 +6,7 @@ class CommentaryToAuthorAdmin(admin.ModelAdmin):
     list_display = ('author', 'to_post', 'comment', 'accepted', 'date_create')
     list_display_links = ('author', 'to_post')
     search_fields = ('author', )
-    list_filter = ('accepted',)
+    list_filter = ('accepted', 'author')
 
 
 admin.site.register(CommentaryToAuthor, CommentaryToAuthorAdmin)
