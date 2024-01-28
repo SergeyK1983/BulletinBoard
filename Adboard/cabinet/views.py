@@ -2,27 +2,31 @@ import secrets
 import string
 import uuid
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.cache import cache
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect
+from django.db.models import Q
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
+from rest_framework.fields import CurrentUserDefault
 # from django_redis import cache
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.utils import json
 
 from Adboard.settings import LOGIN_URL, SERVER_EMAIL, SERG_USER_CONFIRMATION_KEY, SERG_USER_CONFIRMATION_TIMEOUT
 from coment.models import CommentaryToAuthor
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
-from .serializer import ProfileSerializer
+from .serializer import ProfileSerializer, UserSerializer
 from .services import get_username
 
 
@@ -45,6 +49,7 @@ class LogoutUser(LogoutView):
 
 
 class RegisterUser(CreateView):
+    """ Регистрация, создание пользователя """
     form_class = RegisterUserForm
     template_name = 'cabinet/register.html'
     success_url = reverse_lazy('login')
@@ -96,7 +101,7 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
 
     def get_queryset(self):
         self.queryset = super().get_queryset()
-        username = get_username(request=self.request)
+        username = get_username(request=self.request)  # функция из cabinet.services.py
         queryset = User.objects.filter(username=username)
         return queryset
 
@@ -104,26 +109,45 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
         return reverse_lazy('profile', args=[self.request.user.pk])
 
 
-class ProfileDetail(LoginRequiredMixin, DetailView):
-    model = User
-    template_name = 'cabinet/profile.html'
-    context_object_name = 'profile'
-    pk_url_kwarg = 'id'
+class ProfileDetail(generics.ListAPIView):
+    """ Страница пользователя """
 
-    login_url = LOGIN_URL
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "cabinet/profile.html"
 
     def get_queryset(self):
-        self.queryset = super().get_queryset()
-        username = get_username(request=self.request)
-        queryset = User.objects.filter(username=username)
+        # Нужно для нормального вывода в json формате
+        queryset = User.objects.filter(username=self.request.user.username)  # User.objects.raw("SQL запрос")
         return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = User.objects.filter(id=self.object.pk)
-        context['posts'] = Post.objects.filter(author=user[0].username)
-        context['comments'] = CommentaryToAuthor.objects.filter(to_post__author=user[0].username)
-        return context
+    def get(self, request, *args, **kwargs):
+
+        try:
+            user = User.objects.get(id=kwargs['id'])
+        except ObjectDoesNotExist:
+            data = {'state': 0, 'message': 'Пользователя не существует'}
+            # return Response(data=data, status=status.HTTP_200_OK)
+            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+
+        if request.user != user:
+            data = {"message": "Тут нет вашей страницы", }
+            # return Response(data=data, status=status.HTTP_200_OK)
+            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+
+        # нужно для TemplateHTMLRenderer:
+        qs1 = User.objects.filter(username=self.request.user.username)
+        qs2 = Post.objects.filter(author=self.request.user.username).order_by("-date_create")
+        data = {'profile': qs1, 'posts': qs2}
+
+        # можно и так, но фичи работать не будут:
+        # serializer = UserSerializer(user)
+        # j_data = json.dumps(serializer.data)
+        # d_data = json.loads(j_data)
+
+        # return self.list(request, *args, **kwargs)
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 # def get_mail(request):

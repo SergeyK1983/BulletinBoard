@@ -1,4 +1,6 @@
 .idea
 /temp
+/Adboard/media/*/
+/Adboard/pgdata
 
 .env

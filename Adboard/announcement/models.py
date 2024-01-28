@@ -1,5 +1,6 @@
 from django.db import models
 from django.shortcuts import reverse
+from django.utils.translation import gettext_lazy as _
 
 from announcement.services import post_media_directory_path
 from cabinet.models import User
@@ -9,8 +10,20 @@ class Post(models.Model):
     """
     Публикации. Публикация имеет одного автора и одну категорию. К публикациям возможны комментарии.
     """
-    author = models.ForeignKey(User, to_field='username', on_delete=models.CASCADE, verbose_name='Автор')
-    category = models.ForeignKey(to='Category', to_field='categories', on_delete=models.CASCADE, verbose_name='Категории')
+    author = models.ForeignKey(
+        to=User,
+        to_field='username',
+        related_name='posts',
+        on_delete=models.CASCADE,
+        verbose_name='Автор'
+    )
+    category = models.ForeignKey(
+        to='Category',
+        to_field='categories',
+        related_name='posts',
+        on_delete=models.CASCADE,
+        verbose_name='Категории'
+    )
     title = models.CharField(max_length=100, unique=True, verbose_name='Заголовок')
     article = models.TextField(verbose_name='Содержание')
     images = models.ImageField(upload_to=post_media_directory_path, blank=True, null=True, verbose_name="Картинки")
@@ -47,36 +60,27 @@ class Category(models.Model):
     """
     Категории публикаций
     """
-    TANK = 'TK'
-    HEALTH = 'HL'
-    DD = 'DD'
-    MERCHANT = 'MCH'
-    GUILDMASTER = 'GM'
-    QUESTGIVER = 'QG'
-    FARRIER = 'FR'
-    TANNER = 'TN'
-    POTIONMAKER = 'PM'
-    SPELLMASTERS = 'SM'
 
-    CATEGORY = [
-        (TANK, 'Танки'),
-        (HEALTH, 'Хилы'),
-        (DD, 'ДД'),
-        (MERCHANT, 'Торговцы'),
-        (GUILDMASTER, 'Гилдмастеры'),
-        (QUESTGIVER, 'Квестгиверы'),
-        (FARRIER, 'Кузнецы'),
-        (TANNER, 'Кожевники'),
-        (POTIONMAKER, 'Зельевары'),
-        (SPELLMASTERS, 'Мастера заклинаний')
-    ]
+    class Categories(models.TextChoices):
+        # A .label property is added on values, to return the human-readable name.
+        TANK = 'TK', _('Танки')
+        HEALTH = 'HL', _('Хилы')
+        DD = 'DD', _('ДД')
+        MERCHANT = 'MCH', _('Торговцы')
+        GUILDMASTER = 'GM', _('Гилдмастеры')
+        QUESTGIVER = 'QG', _('Квестгиверы')
+        FARRIER = 'FR', _('Кузнецы')
+        TANNER = 'TN', _('Кожевники')
+        POTIONMAKER = 'PM', _('Зельевары')
+        SPELLMASTERS = 'SM', _('Мастера заклинаний')
 
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
         ordering = ['id']
 
-    categories = models.CharField(max_length=3, choices=CATEGORY, default=TANK, unique=True, verbose_name='Категории')
+    categories = models.CharField(max_length=18, choices=Categories.choices, default=Categories.TANK, unique=True,
+                                  verbose_name='Категории')
 
     def __str__(self):
         return f"{self.categories}"

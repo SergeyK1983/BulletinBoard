@@ -13,17 +13,21 @@ from .serializer import BoardSerializer, BoardPageSerializer, BoardPageCreateSer
 
 
 class BoardListView(generics.ListAPIView):
+    """ Вывод карточек всех объявлений на странице """
+
     serializer_class = BoardSerializer
     permission_classes = [permissions.AllowAny]
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "announcement/board_title.html"
 
     def get(self, request):
-        queryset = Post.objects.all()
+        queryset = Post.objects.all().order_by('-date_create')
         return Response({'board_list': queryset})
 
 
 class BoardPageListView(generics.ListAPIView):
+    """ Вывод страницы с объявлением """
+
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.AllowAny]
     renderer_classes = [TemplateHTMLRenderer]
@@ -39,17 +43,23 @@ class BoardPageListView(generics.ListAPIView):
 
 
 class PageCreateView(generics.CreateAPIView):
+    """ Создание нового объявления """
+
     serializer_class = BoardPageCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
 class PageUpdateView(generics.UpdateAPIView):
+    """ Изменение объявления """
+
     serializer_class = BoardPageCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Post.objects.all()
 
 
 class PageDestroyView(generics.DestroyAPIView):
+    """ Удаление объявления """
+
     serializer_class = BoardPageCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Post.objects.all()

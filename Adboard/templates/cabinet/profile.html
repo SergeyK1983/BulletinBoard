@@ -2,13 +2,13 @@
 {% load cabinet_tags %}
 
 {% block header %}
-<h2>Приветствуем! {{profile.username}} ({{profile.first_name}} {{profile.last_name}})</h2>
+<h2> {% now "jS F Y" %} | Приветствуем! {{profile.0.username}} ({{profile.0.first_name}} {{profile.0.last_name}})</h2>
 {% endblock header %}
 
 {% block avatar %}
 <div class="avatar-img">
-    {% if profile.photo %}
-        <img src="{{profile.photo.url}}" alt="Аватарка"/>
+    {% if profile.0.photo %}
+        <img src="{{profile.0.photo.url}}" alt="Аватарка"/>
     {% else %}
         <img src="{% get_media_prefix %}default\Orc.jpg" alt="Аватарка"/>
     {% endif %}
@@ -18,7 +18,7 @@
 {% block avatar-content %}
 <div class="avatar-content">
     <ul class="avatar-content-ul">
-        <li><a href="{% url 'update' profile.id %}">Редактировать</a></li>
+        <li><a href="#">Редактировать профиль</a></li>
         <li><a href="{% url 'logout' %}">Выйти</a></li>
     </ul>
 </div>
@@ -34,29 +34,41 @@
 {% endblock nav-content %}
 
 {% block article-content %}
-<!--<a href=" {% url 'profilelist' profile.id %} ">Показать мои статьи</a>
+
 {% block article-content-list %}
-{% endblock article-content-list %}-->
+{% endblock article-content-list %}
 <div class="content-container">
-    <h2>Мои объявления</h2>
+    <h2 align="center">Мои объявления</h2>
+
     {% for p in posts %}
-    <p> Заголовок: {{p.title}} </p>
-    <p> Категория: {{p.category.get_categories_display}} </p>
-    <p> {{p.article}} </p><br>
-    <p><a href="{% url 'board_page-update' p.id %}">Редактировать</a></p>
-    <p><a href="{% url 'board_page-destroy' p.id %}">Удалить</a></p>
-    Комментарии:<br>
-        {% for com in comments %}
-            {% if p.title == com.to_post.title %}
-                {{com.date_create}} - {{com.author.username}}: {{com.comment}}: Принят - {{com.accepted}}<br>
-            {% endif %}
-        {% endfor %}
-        <p><a href="#">Смотреть комментарии/отклики к объявлению</a></p>
-        <hr color="black" width="100%">
+        <div class="body-title">
+            <div class="body-top">
+                <div class="in-body">
+                    <p> Заголовок: {{p.title|truncatechars:30}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Категория: {{p.category.get_categories_display}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Дата публикации: {{p.date_create}} </p>
+                </div>
+            </div>
+            <div class="in-body">
+                <p><strong>Содержание (превью):</strong><br> {{p.preview}} </p>
+            </div>
+            <div class="in-body end">
+                <p><a href="#">Смотреть полностью</a></p>
+                <p><a href="#">Смотреть комментарии/отклики к объявлению</a></p>
+            </div>
+        {# {% empty %} #}
+            <!-- <div class="in-body">
+                <p> Тут ничего нет! :`( </p>
+            </div> -->
+        </div>
     {% endfor %}
 </div>
 
 <aside class="content-bar">
-    <h3>Фильтрация</h3>
+    <h2>Фильтрация</h2>
 </aside>
 {% endblock article-content %}
