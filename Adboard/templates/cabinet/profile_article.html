@@ -1,0 +1,31 @@
+{% extends 'cabinet/profile.html' %}
+
+{% block content-list %}
+
+<div class="content-container">
+    <h2 align="center">Объявление</h2>
+
+        <div class="body-title">
+            <div class="body-top">
+                <div class="in-body">
+                    <p> Заголовок: {{posts.0.title}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Категория: {{posts.0.category.get_categories_display}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Дата публикации: {{posts.0.date_create}} </p>
+                </div>
+            </div>
+            <div class="in-body">
+                <p><strong>Содержание:</strong><br> {{posts.0.article}} </p>
+            </div>
+            <div class="in-body end">
+                <p><a href="#">Редактировать</a></p>
+                <p><a href="{% url 'profile' posts.0.author.id %}">Назад</a></p>
+                <p><a href="#">Удалить</a></p>
+            </div>
+        </div>
+</div>
+
+{% endblock content-list %}

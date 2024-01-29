@@ -26,7 +26,7 @@ from coment.models import CommentaryToAuthor
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
-from .serializer import ProfileSerializer, UserSerializer
+from .serializer import UserSerializer, UserArticleSerializer, ProfileSerializer
 from .services import get_username
 
 
@@ -115,7 +115,7 @@ class ProfileDetail(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "cabinet/profile.html"
+    template_name = "cabinet/profile_list.html"
 
     def get_queryset(self):
         # Нужно для нормального вывода в json формате
@@ -155,8 +155,36 @@ class ProfileDetail(generics.ListAPIView):
 #     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  # возвращает на ту же страницу
 
 
-class ProfileList(ListView):
-    model = Post
-    template_name = 'cabinet/profile_list.html'
-    context_object_name = 'profilelist'
+class ProfileArticleDetail(generics.ListAPIView):
+    """ Страница просмотра конкретной публикации пользователя """
 
+    serializer_class = UserArticleSerializer  # ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "cabinet/profile_article.html"
+
+    def get_queryset(self, **kwargs):
+        queryset = Post.objects.filter(id=self.kwargs['id'])
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+
+        try:
+            user = User.objects.get(username=kwargs['username'])
+        except ObjectDoesNotExist:
+            data = {'state': 0, 'message': 'Пользователя не существует'}
+            # return Response(data=data, status=status.HTTP_200_OK)
+            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+
+        if request.user != user:
+            data = {"message": "Тут нет вашей страницы", }
+            # return Response(data=data, status=status.HTTP_200_OK)
+            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+
+        # нужно для TemplateHTMLRenderer:
+        qs1 = User.objects.filter(username=self.request.user.username)
+        qs2 = Post.objects.filter(id=self.kwargs['id'])
+        data = {'profile': qs1, 'posts': qs2}
+
+        # return self.list(request, *args, **kwargs)
+        return Response(data=data, status=status.HTTP_200_OK)

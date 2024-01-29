@@ -1,11 +1,11 @@
-from rest_framework import serializers, request
-from rest_framework.request import Request
+from rest_framework import serializers
 
 from announcement.models import Post, Category
 from .models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """ Категории публикаций """
     class Meta:
         model = Category
         fields = ('categories', )
@@ -15,12 +15,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    # author = UserSerializer(label='Автор')
+    """ Публикации авторов """
     category = CategorySerializer(label="Категории")
 
     class Meta:
         model = Post
         fields = (
+            'id',
             'author',
             'category',
             'title',
@@ -31,11 +32,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
 
 
-class UserSerializer(serializers.ModelSerializer):
-    # request = Request(request)
-    posts = ProfileSerializer(many=True, read_only=True)
-    # posts = serializers.RelatedField(queryset=User.objects.get(username=request.user.username).posts.all(), many=True, read_only=True)
-
+class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
@@ -46,5 +43,21 @@ class UserSerializer(serializers.ModelSerializer):
             'email',
             'photo',
             'date_birth',
+        ]
+
+
+class UserSerializer(AuthorSerializer, serializers.ModelSerializer):
+    """ Для просмотра страницы пользователя """
+    posts = ProfileSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
             'posts',
         ]
+
+
+class UserArticleSerializer(ProfileSerializer):
+    """ Для просмотра публикации со страницы пользователя """
+    author = AuthorSerializer()
+

@@ -1,14 +1,36 @@
-{% extends 'cabinet/flatpages/default.html' %}
+{% extends 'cabinet/profile.html' %}
 
-{% block article-content %}
+{% block content-list %}
+
 <div class="content-container">
-    <h2>Мои объявления</h2>
+    <h2 align="center">Мои объявления</h2>
 
-    {% for p in profilelist %}
-    <p> {{p.title}} </p>
-    <p> {{p.category}} </p>
-    <p> {{p.article}} </p>
+    {% for p in posts %}
+        <div class="body-title">
+            <div class="body-top">
+                <div class="in-body">
+                    <p> Заголовок: {{p.title|truncatechars:30}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Категория: {{p.category.get_categories_display}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Дата публикации: {{p.date_create}} </p>
+                </div>
+            </div>
+            <div class="in-body">
+                <p><strong>Содержание (превью):</strong><br> {{p.preview}} </p>
+            </div>
+            <div class="in-body end">
+                <p><a href="{% url 'profile-article' profile.0.username p.id %}">Смотреть полностью</a></p>
+                <p><a href="#">Смотреть комментарии/отклики к объявлению</a></p>
+            </div>
+        </div>
     {% endfor %}
-
 </div>
-{% endblock article-content %}
+
+<aside class="content-bar">
+    <h2>Фильтрация</h2>
+</aside>
+
+{% endblock content-list %}
