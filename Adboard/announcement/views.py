@@ -1,14 +1,8 @@
-import json
-
-from django.forms import model_to_dict
-from django.shortcuts import render
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
-from rest_framework import generics, permissions
-from django.core.serializers.json import DjangoJSONEncoder
+from rest_framework import generics, permissions, status
 
 from .models import Post
-from coment.models import CommentaryToAuthor
 from .serializer import BoardSerializer, BoardPageSerializer, BoardPageCreateSerializer
 
 
@@ -48,13 +42,39 @@ class PageCreateView(generics.CreateAPIView):
     serializer_class = BoardPageCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def post(self, request, *args, **kwargs):
+        serializer = BoardPageCreateSerializer(data=request.data, context={'request': request})
+        print('request.data= ', request.data)
+        print('request.user= ', request.user)
 
-class PageUpdateView(generics.UpdateAPIView):
-    """ Изменение объявления """
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# class PageUpdateView(generics.UpdateAPIView):  # RetrieveUpdateAPIView
+class PageUpdateView(generics.RetrieveUpdateAPIView):
+    """ Контроллер изменения объявления """
 
     serializer_class = BoardPageCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Post.objects.all()
+
+    def get_queryset(self):
+        print(self.kwargs)
+        queryset = Post.objects.filter(id=self.kwargs['pk'])
+        print(queryset)
+        return queryset
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()  # экземпляр - не queryset
+        # instance = self.get_queryset()
+        print(instance)
+        serializer = self.get_serializer(instance, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()  # Если добавить owner=other/dict/, то добавит в validated_data и можно будет пользовать
+            data = {'state': 1, 'message': 'Изменение прошло успешно'}
+            return Response(data, status=status.HTTP_200_OK)
 
 
 class PageDestroyView(generics.DestroyAPIView):

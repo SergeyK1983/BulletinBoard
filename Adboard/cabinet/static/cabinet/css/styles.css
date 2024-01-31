@@ -110,7 +110,24 @@ main {
     justify-content: space-between;
 }
 .in-body {
+    max-width: 100%;
+}
+.in-body-article {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.article {
+    max-width: 80%;
+    margin: 2%;
+}
+.in-body-img {
+    max-width: 20%;
+}
+.in-body-img > img {
     width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 /* боковая панель с фильтрацией */
@@ -129,4 +146,9 @@ footer {
     background-color: #333635;
     height: 8vh;
     width: 100%;
+}
+
+/* Общие настройки */
+a {
+    text-decoration: none;
 }
