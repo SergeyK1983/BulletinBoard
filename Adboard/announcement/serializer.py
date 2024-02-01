@@ -62,38 +62,29 @@ class BoardPageSerializer(serializers.ModelSerializer):
                 break
         else:
             if value == "":
-                raise "Нет категории"
+                raise "Нет категории"  # TODO нужно доработать
         return value
 
     def create(self, validated_data):
-
         category = validated_data['category'].pop('categories')
 
         value = BoardPageSerializer.get_value_category(label=category)
         instance_category = Category.objects.get(categories=value)
+        # TODO: except ObjectDoesNotExist:
 
         validated_data.update({'category': instance_category})
         instance = Post.objects.create(**validated_data)
         return instance
 
     def update(self, instance, validated_data):
-        print('первое', instance)
-        print('второе', validated_data)
+        category = validated_data['category'].pop('categories')
 
-        # def update_category(post, data):
-        #     category = Category.objects.get(categories=post.category.categories)
-        #     print('функция', category)
-        #     print(data["category"].get("categories"))
-        #     category.categories = data["category"].get("categories", category.categories)
-        #     category.save()
+        value = BoardPageSerializer.get_value_category(label=category)
+        instance_category = Category.objects.get(categories=value)
 
-        # update_category(instance, validated_data)
+        validated_data.update({'category': instance_category})
 
-        print('экземпляр старый', instance.category.categories)
-        print('категория', validated_data["category"].get('categories'))
-        instance.category.categories = validated_data["category"].get('categories', instance.category.categories)
-        print('экземпляр', instance.category.categories)
-
+        instance.category = validated_data.get('category', instance.category)
         instance.title = validated_data.get('title', instance.title)
         instance.article = validated_data.get('article', instance.article)
         instance.images = validated_data.get('images', instance.images)

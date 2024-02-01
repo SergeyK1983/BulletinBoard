@@ -83,7 +83,7 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
         instance = self.get_object()  # экземпляр - не queryset
         # instance = self.get_queryset()
         print(instance)
-        serializer = self.get_serializer(instance, data=request.data)
+        serializer = self.get_serializer(instance, data=request.data, context={'request': request})
 
         if serializer.is_valid():
             serializer.save()  # Если добавить owner=other/dict/, то добавит в validated_data и можно будет пользовать
