@@ -15,26 +15,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class BoardSerializer(serializers.ModelSerializer):
     """
-    Вывод перечня объявлений
-    """
-    # author = serializers.ReadOnlyField(source='author.username')
-
-    class Meta:
-        model = Post
-        fields = (
-            'author',
-            'category',
-            'title',
-            'article',
-            'images',
-            'files',
-            'date_create'
-        )
-
-
-class BoardPageSerializer(serializers.ModelSerializer):
-    """
-    Вывод одной страницы объявления
+    Вывод объявлений (списка, страницы)
     """
     class Meta:
         model = Post
@@ -50,7 +31,7 @@ class BoardPageSerializer(serializers.ModelSerializer):
         )
 
 
-class BoardPageCreateSerializer(serializers.ModelSerializer):
+class BoardPageSerializer(serializers.ModelSerializer):
     """
     Создание, редактирование и удаление объявлений
     """
@@ -69,27 +50,29 @@ class BoardPageCreateSerializer(serializers.ModelSerializer):
             'files',
         )
 
+    @staticmethod
+    def get_value_category(label):
+        """ Выдает переменную из Categories модели Category по приходящему label """
+        enum_category = Category.Categories
+        list_category = list(enum_category)
+        value = ""
+        for i in range(len(list_category)):
+            if label == list_category[i].label:
+                value = list_category[i].value
+                break
+        else:
+            if value == "":
+                raise "Нет категории"
+        return value
+
     def create(self, validated_data):
-        def get_value_category(label):
-            enum_category = Category.Categories
-            list_category = list(enum_category)
-            value = ""
-            for i in range(len(list_category)):
-                if label == list_category[i].label:
-                    value = list_category[i].value
-                    break
-            else:
-                if value == "":
-                    raise "Нет категории"
-            return value
 
         category = validated_data['category'].pop('categories')
 
-        value = get_value_category(label=category)
-        inst_cat = Category.objects.get(categories=value)
+        value = BoardPageSerializer.get_value_category(label=category)
+        instance_category = Category.objects.get(categories=value)
 
-        validated_data.update({'category': inst_cat})
-
+        validated_data.update({'category': instance_category})
         instance = Post.objects.create(**validated_data)
         return instance
 
