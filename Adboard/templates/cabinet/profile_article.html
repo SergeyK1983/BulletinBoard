@@ -30,7 +30,7 @@
             <div class="in-body end">
                 <p><a href="{% url 'board_page-update' posts.0.id %}">Редактировать</a></p>
                 <p><a href="{% url 'profile' posts.0.author.id %}">Назад</a></p>
-                <p><a href="#">Удалить</a></p>
+                <p><a href="{% url 'board_page-destroy' posts.0.id %}">Удалить</a></p>
             </div>
         </div>
 </div>

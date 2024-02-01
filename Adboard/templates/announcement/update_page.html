@@ -1,0 +1,17 @@
+{% extends 'cabinet/profile.html' %}
+{% load rest_framework %}
+
+
+{% block content-list %}
+<div class="content-container">
+    <h2 align="center">Создание объявления</h2>
+
+    <div class="body-title">
+        <form action="" method="POST">
+            {% csrf_token %}
+            {% render_form serializer %}
+            <input type="submit" value="Save">
+        </form>
+    </div>
+</div>
+{% endblock content-list %}

@@ -81,6 +81,7 @@ class BoardPageSerializer(serializers.ModelSerializer):
 
         value = BoardPageSerializer.get_value_category(label=category)
         instance_category = Category.objects.get(categories=value)
+        # TODO: except ObjectDoesNotExist:
 
         validated_data.update({'category': instance_category})
 

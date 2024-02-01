@@ -1,8 +1,10 @@
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from rest_framework.exceptions import APIException
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
+from rest_framework.views import APIView
 
 from .models import Post
 from .serializer import BoardSerializer, BoardPageSerializer
@@ -47,20 +49,28 @@ class BoardPageListView(generics.ListAPIView):
         return Response({'board_page': queryset})
 
 
-class PageCreateView(generics.CreateAPIView):
+class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
     """ Создание нового объявления """
 
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "announcement/create_page.html"
+
+    def get(self, request, *args, **kwargs):
+        # метод только из-за TemplateHTMLRenderer
+        return Response({"serializer": self.get_serializer()})
 
     def post(self, request, *args, **kwargs):
         # Контекст нужно передать, т.к. в сериалайзере используется поле с контекстом из request
         serializer = BoardPageSerializer(data=request.data, context={'request': request})
+        print(request.data)
 
         if serializer.is_valid(raise_exception=True):
             try:
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                # return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return redirect('board_list')
             except APIException:
                 data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
                 return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -72,23 +82,27 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
 
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "announcement/update_page.html"
 
     def get_queryset(self):
-        print(self.kwargs)
         queryset = Post.objects.filter(id=self.kwargs['pk'])
-        print(queryset)
         return queryset
 
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()  # экземпляр - не queryset
-        # instance = self.get_queryset()
-        print(instance)
-        serializer = self.get_serializer(instance, data=request.data, context={'request': request})
+        instance = self.get_object()  # экземпляр - не queryset, get_object_or_404(Post, pk=kwargs['pk'])
+        serializer = BoardPageSerializer(instance=instance, data=request.data, context={'request': request})  # self.get_serializer
 
         if serializer.is_valid():
-            serializer.save()  # Если добавить owner=other/dict/, то добавит в validated_data и можно будет пользовать
-            data = {'state': 1, 'message': 'Изменение прошло успешно'}
-            return Response(data, status=status.HTTP_200_OK)
+            try:
+                # Если в .save() добавить owner=other/dict/, то добавит в validated_data и можно будет пользовать
+                serializer.save()
+                # data = {'state': 1, 'message': 'Изменение прошло успешно'}
+                # return Response(data, status=status.HTTP_200_OK)
+                return redirect('board_list')
+            except APIException:
+                data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
+                return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PageDestroyView(generics.DestroyAPIView):
