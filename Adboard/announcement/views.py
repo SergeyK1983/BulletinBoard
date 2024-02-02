@@ -1,11 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from rest_framework.exceptions import APIException
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
-from rest_framework.views import APIView
 
+from cabinet.models import User
 from .models import Post
 from .serializer import BoardSerializer, BoardPageSerializer
 
@@ -54,12 +55,14 @@ class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
 
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)  # без этого с формы ничего не получить
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "announcement/create_page.html"
 
     def get(self, request, *args, **kwargs):
-        # метод только из-за TemplateHTMLRenderer
-        return Response({"serializer": self.get_serializer()})
+        # метод get только из-за TemplateHTMLRenderer
+        user = User.objects.filter(username=request.user.username)
+        return Response({"profile": user, "serializer": self.get_serializer()})
 
     def post(self, request, *args, **kwargs):
         # Контекст нужно передать, т.к. в сериалайзере используется поле с контекстом из request
@@ -82,6 +85,7 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
 
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "announcement/update_page.html"
 
@@ -89,7 +93,13 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
         queryset = Post.objects.filter(id=self.kwargs['pk'])
         return queryset
 
-    def update(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        # метод get только из-за TemplateHTMLRenderer
+        user = User.objects.filter(username=request.user.username)
+        queryset = self.get_queryset()
+        return Response({"profile": user, "posts": queryset, "serializer": self.get_serializer()})
+
+    def post(self, request, *args, **kwargs):  # AssertionError
         instance = self.get_object()  # экземпляр - не queryset, get_object_or_404(Post, pk=kwargs['pk'])
         serializer = BoardPageSerializer(instance=instance, data=request.data, context={'request': request})  # self.get_serializer
 

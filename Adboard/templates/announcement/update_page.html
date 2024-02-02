@@ -1,17 +1,15 @@
-{% extends 'cabinet/profile.html' %}
+{% extends 'cabinet/profile_article.html' %}
 {% load rest_framework %}
 
 
-{% block content-list %}
-<div class="content-container">
-    <h2 align="center">Создание объявления</h2>
-
-    <div class="body-title">
-        <form action="" method="POST">
-            {% csrf_token %}
-            {% render_form serializer %}
-            <input type="submit" value="Save">
-        </form>
-    </div>
+{% block form_update %}
+<div class="form-post-update">
+    <h3>Редактирование</h3>
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% render_form serializer %}
+    <br>
+    <input type="submit" value="Сохранить">
+</form>
 </div>
-{% endblock content-list %}
+{% endblock form_update %}

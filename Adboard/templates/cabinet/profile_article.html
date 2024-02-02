@@ -24,14 +24,22 @@
                 </div>
                 {% endif %}
                 <div class="article">
-                    <p><strong>Содержание:</strong><br> {{posts.0.article}} </p>
+                    <p><strong>Содержание:</strong><br> {{posts.0.article|linebreaks}} </p>
                 </div>
             </div>
+            {% if not serializer %}
             <div class="in-body end">
                 <p><a href="{% url 'board_page-update' posts.0.id %}">Редактировать</a></p>
                 <p><a href="{% url 'profile' posts.0.author.id %}">Назад</a></p>
                 <p><a href="{% url 'board_page-destroy' posts.0.id %}">Удалить</a></p>
             </div>
+            {% else %}
+                {% block form_update %}
+                {% endblock form_update %}<br>
+                <div class="in-body end">
+                    <p><a href="{% url 'profile' posts.0.author.id %}">Назад</a></p>
+                </div>
+            {% endif %}
         </div>
 </div>
 

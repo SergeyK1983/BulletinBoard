@@ -1,0 +1,12 @@
+.form-block {
+    display: flex;
+    align-items: flex-start;
+    height: 100%;
+}
+.block-1 {
+    height: 40%;
+}
+.block-1 {
+    height: 60%;
+}
+

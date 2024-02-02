@@ -1,0 +1,22 @@
+.form-block {
+    display: flex;
+    align-items: flex-start;
+    height: 100%;
+    padding: 1% 0%;
+}
+.block-1 {
+    width: 30%;
+}
+.block-2 {
+    width: 70%;
+}
+.form-textarea {
+    width: 90%;
+}
+.form-input {
+    width: 90%;
+    padding: 1% 0%;
+}
+.form-select {
+    padding: 1% 0%;
+}

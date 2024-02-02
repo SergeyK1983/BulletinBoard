@@ -9,7 +9,9 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ('categories', )
         extra_kwargs = {
-            'categories': {'choices': Category.Categories.labels, },
+            'categories': {'choices': Category.Categories.labels,
+                           'style': {'template': 'announcement/forms/select.html'}
+                           },
         }
 
 
@@ -49,6 +51,23 @@ class BoardPageSerializer(serializers.ModelSerializer):
             'images',
             'files',
         )
+        extra_kwargs = {
+            'title': {'style': {
+                'template': 'announcement/forms/input.html',
+                'placeholder': 'заголовок',
+            }},
+            'article': {'style': {
+                'template': 'announcement/forms/textarea1.html',
+                'placeholder': 'содержание',
+                'rows': 10,
+            }},
+            'images': {'style': {
+                'template': 'announcement/forms/input.html',
+            }},
+            'files': {'style': {
+                'template': 'announcement/forms/input.html',
+            }},
+        }
 
     @staticmethod
     def get_value_category(label):
