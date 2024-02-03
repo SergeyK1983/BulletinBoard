@@ -1,13 +1,15 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from rest_framework.exceptions import APIException
+from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
 
 from cabinet.models import User
-from .models import Post
+from .forms import FormPost
+from .models import Post, Category
 from .serializer import BoardSerializer, BoardPageSerializer
 
 
@@ -16,7 +18,7 @@ class BoardListView(generics.ListAPIView):
 
     serializer_class = BoardSerializer
     permission_classes = [permissions.AllowAny]
-    # queryset = Post.objects.all().order_by('-date_create')
+    # queryset = Post.objects.all().order_by('-date_create')  # в случае без TemplateHTMLRenderer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "announcement/board_title.html"
 
@@ -79,7 +81,6 @@ class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
                 return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class PageUpdateView(generics.UpdateAPIView):  # RetrieveUpdateAPIView
 class PageUpdateView(generics.RetrieveUpdateAPIView):
     """ Контроллер изменения объявления """
 
@@ -87,7 +88,7 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = "announcement/update_page.html"
+    template_name = "announcement/update_page_form.html"
 
     def get_queryset(self):
         queryset = Post.objects.filter(id=self.kwargs['pk'])
@@ -97,11 +98,29 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
         # метод get только из-за TemplateHTMLRenderer
         user = User.objects.filter(username=request.user.username)
         queryset = self.get_queryset()
-        return Response({"profile": user, "posts": queryset, "serializer": self.get_serializer()})
+        initial = {
+            "category": queryset[0].category,
+            "title": queryset[0].title,
+            "article": queryset[0].article,
+        }
+        form = FormPost(initial=initial)  # instance=queryset[0] все поля или initial переопределить поля
+        # форма от serializer как-то криво работала
+        return Response({"profile": user, "posts": queryset, "form": form})
 
-    def post(self, request, *args, **kwargs):  # AssertionError
-        instance = self.get_object()  # экземпляр - не queryset, get_object_or_404(Post, pk=kwargs['pk'])
-        serializer = BoardPageSerializer(instance=instance, data=request.data, context={'request': request})  # self.get_serializer
+    def post(self, request, *args, **kwargs):
+        # костыль для формы, необходимо сменить содержание от формы в request.data, чтобы serializer не ругался
+        data = request.data.copy()
+        value = data.pop("category")
+        label = Category.Categories(value[0]).label
+        data.update({"category.categories": label})
+        # конец костыля
+
+        instance = get_object_or_404(Post, pk=kwargs['pk'])  # экземпляр - не queryset, можно еще так self.get_object()
+        serializer = BoardPageSerializer(instance=instance, data=data, context={'request': request})
+
+        if not serializer.is_valid():
+            data = {'error': 'Что-то пошло не так ...', 'status': 'HTTP_400_BAD_REQUEST'}
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
         if serializer.is_valid():
             try:
