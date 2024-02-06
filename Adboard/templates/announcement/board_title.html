@@ -15,8 +15,19 @@
 </div>
 {% endif %}
 <div class="nav-content">
+    <hr>
     <h3>Фильтрация</h3>
 </div>
+{% if pagination %}
+<div class="nav-content">
+    <hr>
+    <h3>Пагинация</h3>
+    <div class="pagination">
+        <span>Всего записей: {{count}}</span><br>
+    </div>
+    {% include 'announcement/paginator/numbers.html' %}
+</div>
+{% endif %}
 {% endblock nav-content %}
 
 {% block article-content %}

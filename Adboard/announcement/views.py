@@ -10,6 +10,7 @@ from rest_framework import generics, permissions, status
 from cabinet.models import User
 from .forms import FormPost
 from .models import Post, Category
+from .pagination import BoardListPagination
 from .serializer import BoardSerializer, BoardPageSerializer
 
 
@@ -19,13 +20,20 @@ class BoardListView(generics.ListAPIView):
     serializer_class = BoardSerializer
     permission_classes = [permissions.AllowAny]
     # queryset = Post.objects.all().order_by('-date_create')  # в случае без TemplateHTMLRenderer
+    pagination_class = BoardListPagination
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "announcement/board_title.html"
 
     def get(self, request, *args, **kwargs):
         queryset = Post.objects.all().order_by('-date_create')
+        pages = self.paginate_queryset(queryset=queryset)
+        if pages is not None:
+            # serializer = self.get_serializer(pages, many=True)
+            # return self.get_paginated_response(serializer.data)
+            return self.get_paginated_response(pages)
+
         # return self.list(request, *args, **kwargs)
-        return Response({'board_list': queryset})
+        return Response({"board_list": queryset, "pagination": False})
 
 
 class BoardPageListView(generics.ListAPIView):
@@ -70,6 +78,10 @@ class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
         # Контекст нужно передать, т.к. в сериалайзере используется поле с контекстом из request
         serializer = BoardPageSerializer(data=request.data, context={'request': request})
         print(request.data)
+
+        if not serializer.is_valid():
+            data = {'error': 'Что-то пошло не так ...', 'status': 'HTTP_400_BAD_REQUEST'}
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
         if serializer.is_valid(raise_exception=True):
             try:

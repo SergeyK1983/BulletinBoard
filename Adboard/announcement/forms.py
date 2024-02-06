@@ -10,5 +10,7 @@ class FormPost(forms.ModelForm):
         model = Post
         fields = ["category", "title", "article", "images", "files"]
         widgets = {
-            'article': forms.Textarea(attrs={'class': 'form-text', 'cols': 80, 'rows': 15})
+            "category": forms.Select(attrs={'class': 'form-select'}),  # от чего-то не влияет ...
+            "title": forms.TextInput(attrs={'class': 'form-input'}),
+            "article": forms.Textarea(attrs={'class': 'form-textarea', 'rows': 15})
         }

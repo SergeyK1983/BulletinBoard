@@ -1,29 +1,51 @@
 {% extends 'cabinet/profile_article.html' %}
 
-
 {% block form_update %}
 <div class="form-post-update">
+    <hr>
     <h3>Редактирование</h3>
-<form action="" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
 
-    <p><label class="" for="{{ form.category.id_for_label }}"> {{form.category.label}}: </label> {{form.category}} </p>
-    <div class=""> {{form.category.errors}} </div>
+    <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
 
-    <p><label class="" for="{{ form.title.id_for_label }}">{{form.title.label}}:</label> {{form.title}} </p>
-    <div class=""> {{form.title.errors}} </div>
+    <div class="form-block">
+        <div class="block-1"><label class="" for="{{ form.category.id_for_label }}"> {{form.category.label}}: </label></div>
+        <div class="block-2">
+            {{form.category}}
+            <span>{{form.category.errors}}</span>
+        </div>
+    </div>
+    <div class="form-block">
+        <div class="block-1"><label class="" for="{{ form.title.id_for_label }}">{{form.title.label}}:</label></div>
+        <div class="block-2">
+            {{form.title}}
+            <span> {{form.title.errors}} </span>
+        </div>
+    </div>
+    <div class="form-block">
+        <div class="block-1"><label class="" for="{{ form.article.id_for_label }}">{{form.article.label}}:</label></div>
+        <div class="block-2">
+            {{form.article}}
+            <span> {{form.article.errors}} </span>
+        </div>
+    </div>
+    <div class="form-block">
+        <div class="block-1"><label class="" for="{{ form.images.id_for_label }}">{{form.images.label}}:</label></div>
+        <div class="block-2">
+            {{form.images}}
+            <span> {{form.images.errors}} </span>
+        </div>
+    </div>
+    <div class="form-block">
+        <div class="block-1"><label class="" for="{{ form.files.id_for_label }}">{{form.files.label}}:</label></div>
+        <div class="block-2">
+            {{form.files}}
+            <span> {{form.files.errors}} </span>
+        </div>
+    </div>
 
-    <p><label class="" for="{{ form.article.id_for_label }}">{{form.article.label}}:</label> {{form.article}} </p>
-    <div class=""> {{form.article.errors}} </div>
-
-    <p><label class="" for="{{ form.images.id_for_label }}">{{form.images.label}}:</label> {{form.images}} </p>
-    <div class=""> {{form.images.errors}} </div>
-
-    <p><label class="" for="{{ form.files.id_for_label }}">{{form.files.label}}:</label> {{form.files}} </p>
-    <div class=""> {{form.files.errors}} </div>
-    <br>
-
-    <input type="submit" value="Сохранить">
-</form>
+        <br>
+        <input type="submit" value="Сохранить">
+    </form>
 </div>
 {% endblock form_update %}

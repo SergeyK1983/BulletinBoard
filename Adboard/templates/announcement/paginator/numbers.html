@@ -1,0 +1,60 @@
+{% load ann_tags %}
+
+{% get_last_page context.page_links as last_page %}
+{% get_page_num page_links=context.page_links pages_count=pages_count as page %}
+
+<div class="pagination">
+    <div class="pager1 active">
+        {% if links.previous %}
+            <a href="{{ links.previous }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+        {% else %}
+            <span aria-hidden="true">&laquo;</span>
+        {% endif %}
+    </div>
+
+    <ul class="pager2">
+        {% if context.page_links|length > 2 %}
+            {% if context.page_links.0.is_active %}
+                <li>стр. {{ context.page_links.0.number }} </li>
+                <li class="active"><a href="{{ context.page_links.1.url }}">{{ context.page_links.1.number }}</a></li>
+            {% else %}
+                <li class="active"><a href="{{ context.page_links.0.url }}">{{ context.page_links.0.number }}</a></li>
+            {% endif %}
+
+            {% if page.ellipsis_prefix %}
+                <li> ... </li>
+            {% endif %}
+
+            {% if not last_page.is_active and not context.page_links.0.is_active %}
+                <li> стр. {{page.current_page}} </li>
+            {% endif %}
+
+            {% if page.ellipsis_suffix %}
+                <li> ... </li>
+            {% endif %}
+
+            {% if last_page.is_active %}
+                <li class="active"><a href="{{ context.page_links.3.url }}">{{ context.page_links.3.number }}</a></li>
+                <li> стр. {{ pages_count }}</li>
+            {% else %}
+                <li class="active"><a href="{{ last_page.url }}">{{ pages_count }}</a></li>
+            {% endif %}
+
+        {% else %}
+            {% for page_link in context.page_links %}
+                {% if page_link.is_active %}
+                    <li>стр. {{ page_link.number }}</li>
+                {% else %}
+                    <li class="active"><a href="{{ page_link.url }}">{{ page_link.number }}</a></li>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </ul>
+    <div class="pager1 active">
+        {% if links.next %}
+            <a href="{{ links.next }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+        {% else %}
+            <span aria-hidden="true">&raquo;</span>
+        {% endif %}<br>
+    </div>
+</div>
