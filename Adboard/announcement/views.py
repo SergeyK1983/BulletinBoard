@@ -3,11 +3,14 @@ from django.shortcuts import redirect
 from rest_framework.exceptions import APIException
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from cabinet.models import User
+from .filters import BoardListFilter
 from .forms import FormPost
 from .models import Post, Category
 from .pagination import BoardListPagination
@@ -19,21 +22,28 @@ class BoardListView(generics.ListAPIView):
 
     serializer_class = BoardSerializer
     permission_classes = [permissions.AllowAny]
-    # queryset = Post.objects.all().order_by('-date_create')  # в случае без TemplateHTMLRenderer
+    queryset = Post.objects.filter().all().order_by('-date_create')
     pagination_class = BoardListPagination
-    renderer_classes = [TemplateHTMLRenderer]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = BoardListFilter
+    search_fields = ['title', ]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "announcement/board_title.html"
 
     def get(self, request, *args, **kwargs):
-        queryset = Post.objects.all().order_by('-date_create')
+        queryset = self.get_queryset()  # Post.objects.filter().all().order_by('-date_create')
         pages = self.paginate_queryset(queryset=queryset)
         if pages is not None:
-            # serializer = self.get_serializer(pages, many=True)
-            # return self.get_paginated_response(serializer.data)
-            return self.get_paginated_response(pages)
+            if request.headers.get('Content-Type') == 'application/json':
+                serializer = self.get_serializer(pages, many=True)
+                return self.get_paginated_response(serializer.data)
+            else:
+                return self.get_paginated_response(pages)
 
-        # return self.list(request, *args, **kwargs)
-        return Response({"board_list": queryset, "pagination": False})
+        if request.headers.get('Content-Type') == 'application/json':
+            return self.list(request, *args, **kwargs)
+        else:
+            return Response({"board_list": queryset, "pagination": False})
 
 
 class BoardPageListView(generics.ListAPIView):

@@ -50,11 +50,18 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
+
     'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.TemplateHTMLRenderer',
-        'rest_framework.renderers.JSONRenderer',
     ],
+
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+
+    'DATETIME_FORMAT': "%d.%m.%Y %H:%M:%S",  # формат вывода времени в ответах
 }
 
 CORS_ORIGIN_ALLOW_ALL = True  # added to solve CORS

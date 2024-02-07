@@ -25,9 +25,9 @@ class BoardListPagination(PageNumberPagination):
                 'next': self.get_next_link(),
                 'previous': self.get_previous_link(),
             },
-            'context': self.get_html_context,  # для пагинации при TemplateHTMLRenderer
+            'context': self.get_html_context if self.request.headers.get('Content-Type') == 'text/plain' else None,  # для пагинации при TemplateHTMLRenderer
             'count': self.page.paginator.count,
-            'pages_count': self.get_pages_count(),  # для пагинации при TemplateHTMLRenderer
+            'pages_count': self.get_pages_count(),
             'board_list': data,
             'pagination': True,
         })
