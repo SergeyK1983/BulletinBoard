@@ -31,7 +31,6 @@ class BoardListView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         # все танцы с фильтрацией из-за пагинации в основном для TemplateHTMLRenderer, а так могло бы работать штатно.
         queryset = self.get_queryset()
-
         filter_board = self.filterset_class(self.request.GET, queryset)
         qs = filter_board.qs
         # print(len(qs))  ели пагинация будет глючить, использовать для подсчета страничек
