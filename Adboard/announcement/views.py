@@ -6,7 +6,6 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
-from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from cabinet.models import User
@@ -24,26 +23,31 @@ class BoardListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Post.objects.filter().all().order_by('-date_create')
     pagination_class = BoardListPagination
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend]
     filterset_class = BoardListFilter
-    search_fields = ['title', ]
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "announcement/board_title.html"
 
     def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()  # Post.objects.filter().all().order_by('-date_create')
-        pages = self.paginate_queryset(queryset=queryset)
-        if pages is not None:
-            if request.headers.get('Content-Type') == 'application/json':
+        # все танцы с фильтрацией из-за пагинации в основном для TemplateHTMLRenderer, а так могло бы работать штатно.
+        queryset = self.get_queryset()
+
+        filter_board = self.filterset_class(self.request.GET, queryset)
+        qs = filter_board.qs
+        # print(len(qs))  ели пагинация будет глючить, использовать для подсчета страничек
+        pages = self.paginate_queryset(queryset=qs)
+
+        if request.headers.get('Content-Type') == 'application/json':
+            if pages is not None:
                 serializer = self.get_serializer(pages, many=True)
                 return self.get_paginated_response(serializer.data)
             else:
-                return self.get_paginated_response(pages)
-
-        if request.headers.get('Content-Type') == 'application/json':
-            return self.list(request, *args, **kwargs)
+                return self.list(request, *args, **kwargs)
         else:
-            return Response({"board_list": queryset, "pagination": False})
+            if pages is not None:
+                return self.get_paginated_response(pages)
+            else:
+                return Response({"board_list": qs, "pagination": False})
 
 
 class BoardPageListView(generics.ListAPIView):

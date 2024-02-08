@@ -20,9 +20,12 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
 from rest_framework.utils import json
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from Adboard.settings import LOGIN_URL, SERVER_EMAIL, SERG_USER_CONFIRMATION_KEY, SERG_USER_CONFIRMATION_TIMEOUT
 from coment.models import CommentaryToAuthor
+from .filters import UserListFilter
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
@@ -114,8 +117,10 @@ class ProfileDetail(generics.ListAPIView):
 
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = "cabinet/profile_list.html"
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserListFilter
+    # renderer_classes = [TemplateHTMLRenderer]
+    # template_name = "cabinet/profile_list.html"
 
     def get_queryset(self):
         # Нужно для нормального вывода в json формате
@@ -146,8 +151,8 @@ class ProfileDetail(generics.ListAPIView):
         # j_data = json.dumps(serializer.data)
         # d_data = json.loads(j_data)
 
-        # return self.list(request, *args, **kwargs)
-        return Response(data=data, status=status.HTTP_200_OK)
+        return self.list(request, *args, **kwargs)
+        # return Response(data=data, status=status.HTTP_200_OK)
 
 
 # def get_mail(request):

@@ -21,8 +21,6 @@ AUTH_USER_MODEL = "cabinet.User"
 
 SITE_ID = 1
 
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,13 +32,13 @@ INSTALLED_APPS = [
     'django.contrib.sites',  # Для простых страничек
     'django.contrib.flatpages',  # Для простых страничек
 
+    'corsheaders',
+    'django_filters',
+    'rest_framework',
+
     'announcement.apps.AnnouncementConfig',
     'cabinet.apps.CabinetConfig',
     'coment.apps.ComentConfig',
-
-    'corsheaders',
-    'rest_framework',
-    'django_filters',
 ]
 
 REST_FRAMEWORK = {
