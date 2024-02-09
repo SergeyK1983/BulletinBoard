@@ -188,6 +188,54 @@ main {
 .nav-content > ul > li > a {
     text-decoration: none;
 }
+.user-ava {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.user-ava-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden; /* чтобы картинка "обрезалась" о границы*/
+}
+.user-ava-img > img {
+    display: block;
+    max-width: 100%;
+    object-fit: cover; /*cover;contain;scale-down*/
+}
+.filters {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+}
+.filter-form {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+    font-size: 18px;
+}
+.label-form-r {
+    width: 30%;
+    margin: 4px 0px;
+}
+.input-form-r {
+    width: 55%;
+    margin: 4px 0px;
+}
+.label-form {
+    width: 65%;
+    margin: 2px 0px;
+    font-size: 15px;
+}
+.input-form {
+    width: 30%;
+    margin: 4px 0px;
+}
+.button-form {
+    margin: 15px 0px 0px 0px;
+}
 
 .pagination {
     display: flex;

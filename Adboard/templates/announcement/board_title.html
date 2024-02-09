@@ -17,13 +17,7 @@
 <div class="nav-content">
     <hr>
     <h3>Фильтрация</h3>
-    sdads
-    {% for f in filter.form %}
-        <form>
-            <p><label class="form_label" for="{{f.id_for_label}}">{{f.label}}</label> {{f}} </p>
-        </form>
-    {% endfor%}
-
+    {% include 'announcement/filters.html' %}
 </div>
 {% if pagination %}
 <div class="nav-content">

@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.template import loader
 from rest_framework.exceptions import APIException
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser

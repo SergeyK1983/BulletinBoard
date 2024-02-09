@@ -1,0 +1,22 @@
+
+<div class="filters">
+<form class="filter-form" method="GET">
+    {% csrf_token %}
+    <label class="label-form-r" for="author">Автор:</label><input class="input-form-r" type="text" id="author" name="author" maxlength="10" placeholder="например: serg"><br>
+    <label class="label-form-r" for="date_after">Дата от:</label><input class="input-form-r" type="date" id="date_after" name="date_after"><br>
+    <label class="label-form-r" for="date_before">Дата до:</label><input class="input-form-r" type="date" id="date_before" name="date_before"><br>
+    <label class="label-form-r">Категория:</label> <div class="input-form-r"></div>
+    <input class="input-form" type="checkbox" name="category" id="tank" value="TK"><label class="label-form" for="tank">Танки</label><br>
+    <input class="input-form" type="checkbox" name="category" id="health" value="HL"><label class="label-form" for="health">Хилы</label><br>
+    <input class="input-form" type="checkbox" name="category" id="dd" value="DD"><label class="label-form" for="dd">ДД</label><br>
+    <input class="input-form" type="checkbox" name="category" id="merchant" value="MCH"><label class="label-form" for="merchant">Торговцы</label><br>
+    <input class="input-form" type="checkbox" name="category" id="guildmaster" value="GM"><label class="label-form" for="guildmaster">Гилдмастеры</label><br>
+    <input class="input-form" type="checkbox" name="category" id="questgiver" value="QG"><label class="label-form" for="questgiver">Квестгиверы</label><br>
+    <input class="input-form" type="checkbox" name="category" id="farrier" value="FR"><label class="label-form" for="farrier">Кузнецы</label><br>
+    <input class="input-form" type="checkbox" name="category" id="tanner" value="TN"><label class="label-form" for="tanner">Кожевники</label><br>
+    <input class="input-form" type="checkbox" name="category" id="potionmarker" value="PM"><label class="label-form" for="potionmarker">Зельевары</label><br>
+    <input class="input-form" type="checkbox" name="category" id="spellmasters" value="SM"><label class="label-form" for="spellmasters">Мастера заклинаний</label><br>
+
+    <input class="button-form" type="submit" value="Применить"/>
+</form>
+</div>

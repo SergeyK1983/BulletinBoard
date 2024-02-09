@@ -1,4 +1,5 @@
 {% load static %}
+{% load cabinet_tags %}
 <!DOCTYPE html>
 <html lang="en, ru">
 <head>
@@ -19,6 +20,17 @@
         <div class="block block-left">
             <div class="in_left">
                 <div class="nav-content">
+                    {% if request.user.is_authenticated %}
+                        <div class="user-ava">
+                            <div class="user-ava-img">
+                                {% if user.photo %}
+                                <img src="{{user.photo.url}}" alt="Аватарка"/>
+                                {% else %}
+                                <img src="{% get_media_prefix %}default\Orc.jpg" alt="Аватарка"/>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif%}
                     <ul>
                         {% if request.user.is_authenticated %}
                         <li>{{user.username}}</li>
