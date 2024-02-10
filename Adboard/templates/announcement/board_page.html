@@ -17,6 +17,16 @@
 
     </ul>
 </div>
+<div class="nav-content">
+    <hr>
+    <h3>Автор</h3>
+    <p>{{board_page.0.author.username}}</p>
+    {% if board_page.0.author.photo %}
+    <div class="block-author-img">
+        <img src="{{board_page.0.author.photo.url}}" alt="Автор"/>
+    </div>
+    {% endif %}
+</div>
 {% endblock nav-content %}
 
 {% block article-content %}

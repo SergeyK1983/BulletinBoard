@@ -1,6 +1,4 @@
-from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.template import loader
 from rest_framework.exceptions import APIException
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -55,7 +53,7 @@ class BoardPageListView(generics.ListAPIView):
 
     serializer_class = BoardSerializer
     permission_classes = [permissions.AllowAny]
-    renderer_classes = [TemplateHTMLRenderer]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "announcement/board_page.html"
 
     def get_queryset(self):
@@ -67,11 +65,15 @@ class BoardPageListView(generics.ListAPIView):
         if not list(queryset):
             data = {'error': 'Такой страницы нет либо записей нет.',
                     'status': 'HTTP_404_NOT_FOUND'}
-            # return Response(data, status=status.HTTP_404_NOT_FOUND)
-            return HttpResponse(content=data.values(), status=status.HTTP_404_NOT_FOUND)
+            if request.headers.get('Content-Type') == 'application/json':
+                return Response(data, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({'error': data}, template_name='announcement/page_error.html')
 
-        # return self.list(request, *args, **kwargs)
-        return Response({'board_page': queryset})
+        if request.headers.get('Content-Type') == 'application/json':
+            return self.list(request, *args, **kwargs)
+        else:
+            return Response({'board_page': queryset})
 
 
 class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
