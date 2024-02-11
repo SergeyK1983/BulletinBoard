@@ -16,7 +16,7 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 from rest_framework.fields import CurrentUserDefault
 # from django_redis import cache
-from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
 from rest_framework.utils import json
@@ -119,7 +119,7 @@ class ProfileDetail(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = UserListFilter
-    renderer_classes = [TemplateHTMLRenderer]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "cabinet/profile_list.html"
 
     def get_queryset(self):
@@ -128,6 +128,9 @@ class ProfileDetail(generics.ListAPIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
+        print(kwargs)
+        print(request.GET)
+        print(request.user)
 
         try:
             user = User.objects.get(id=kwargs['id'])
@@ -152,6 +155,7 @@ class ProfileDetail(generics.ListAPIView):
         # d_data = json.loads(j_data)
 
         # return self.list(request, *args, **kwargs)
+        print(data)
         return Response(data=data, status=status.HTTP_200_OK)
 
 

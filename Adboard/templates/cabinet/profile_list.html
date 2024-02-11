@@ -30,7 +30,14 @@
 </div>
 
 <aside class="content-bar">
-    <h2>Фильтрация</h2>
+    <div class="nav-content">
+        <h3>Фильтрация</h3>
+        {% include 'cabinet/filters.html' %}
+    </div>
+    <div class="nav-content">
+        <hr>
+        <h3>Пагинация</h3>
+    </div>
 </aside>
 
 {% endblock content-list %}

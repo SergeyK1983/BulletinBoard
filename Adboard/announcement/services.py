@@ -1,15 +1,10 @@
-from datetime import datetime
-
 from .models import Category
 
 
 def post_media_directory_path(instance, filename) -> str:
-    """
-     Приложение announcement, Модель Post. Формирование пути для атрибута upload_to=
-    """
-    date = datetime.now()
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f"announcement/{instance.author}/{date.year}/{date.month}/{date.day}/{filename}"
+    # Зря сделал тут эту функцию. По ходу разработки пришлось её тут оставить.
+    # Все, что касается моделей, нужно делать в models
+    pass
 
 
 def correct_form_category_for_serializer(request):

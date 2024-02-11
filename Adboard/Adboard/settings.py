@@ -164,6 +164,8 @@ CACHES = {
     }
 }
 
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 Mb limit
+
 # две переменные, чтобы не путаться; SERG - потому что мои переменные, а не django, чтобы не забыть.
 SERG_USER_CONFIRMATION_KEY = "user_confirmation_{token}"  # шаблон для ключа
 SERG_USER_CONFIRMATION_TIMEOUT = 60  # время в секундах

@@ -10,9 +10,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from cabinet.models import User
 from .filters import BoardListFilter
 from .forms import FormPost
-from .models import Post, Category
+from .models import Post
 from .pagination import BoardListPagination
 from .serializer import BoardSerializer, BoardPageSerializer
+from .services import correct_form_category_for_serializer
 
 
 class BoardListView(generics.ListAPIView):
@@ -76,7 +77,7 @@ class BoardPageListView(generics.ListAPIView):
             return Response({'board_page': queryset})
 
 
-class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
+class PageCreateView(generics.CreateAPIView):
     """ Создание нового объявления """
 
     serializer_class = BoardPageSerializer
@@ -92,12 +93,7 @@ class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
         return Response({"profile": user, "form": form})  # "serializer": self.get_serializer() трудно настроить стили
 
     def post(self, request, *args, **kwargs):
-
-        data = request.data.copy()
-        value = data.pop("category")
-        label = Category.Categories(value[0]).label
-        data.update({"category.categories": label})
-
+        data = correct_form_category_for_serializer(request=request)
         # Контекст нужно передать, т.к. в сериалайзере используется поле с контекстом из request
         serializer = BoardPageSerializer(data=data, context={'request': request})
 
@@ -105,22 +101,19 @@ class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
             data = {'error': 'Переданные данные не корректны ...', 'status': 'HTTP_400_BAD_REQUEST'}
             if request.headers.get('Content-Type') == 'application/json':
                 return Response(data, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'error': data}, template_name='announcement/page_error.html')
+            return Response({'error': data}, template_name='announcement/page_error.html')
 
         if serializer.is_valid(raise_exception=True):
             try:
                 serializer.save()
                 if request.headers.get('Content-Type') == 'application/json':
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
-                else:
-                    return redirect('board_list')
+                return redirect('board_list')
             except APIException:
                 data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
                 if request.headers.get('Content-Type') == 'application/json':
                     return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                else:
-                    return Response({'error': data}, template_name='announcement/page_error.html')
+                return Response({'error': data}, template_name='announcement/page_error.html')
 
 
 class PageUpdateView(generics.RetrieveUpdateAPIView):
@@ -129,7 +122,7 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
-    renderer_classes = [TemplateHTMLRenderer]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "announcement/update_page_form.html"
 
     def get_queryset(self):
@@ -149,30 +142,29 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
         return Response({"profile": user, "posts": queryset, "form": form})
 
     def post(self, request, *args, **kwargs):
-        # костыль для формы, необходимо сменить содержание от формы в request.data, чтобы serializer не ругался
-        data = request.data.copy()
-        value = data.pop("category")
-        label = Category.Categories(value[0]).label
-        data.update({"category.categories": label})
-        # конец костыля
-
-        instance = get_object_or_404(Post, pk=kwargs['pk'])  # экземпляр - не queryset, можно еще так self.get_object()
+        data = correct_form_category_for_serializer(request=request)
+        instance = get_object_or_404(Post, pk=kwargs['pk'])  # можно еще так self.get_object()
         serializer = BoardPageSerializer(instance=instance, data=data, context={'request': request})
 
         if not serializer.is_valid():
             data = {'error': 'Что-то пошло не так ...', 'status': 'HTTP_400_BAD_REQUEST'}
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            if request.headers.get('Content-Type') == 'application/json':
+                return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': data}, template_name='announcement/page_error.html')
 
         if serializer.is_valid():
             try:
                 # Если в .save() добавить owner=other/dict/, то добавит в validated_data и можно будет пользовать
                 serializer.save()
-                # data = {'state': 1, 'message': 'Изменение прошло успешно'}
-                # return Response(data, status=status.HTTP_200_OK)
+                if request.headers.get('Content-Type') == 'application/json':
+                    data = {'state': 1, 'message': 'Изменение прошло успешно'}
+                    return Response(data, status=status.HTTP_200_OK)
                 return redirect('board_list')
             except APIException:
                 data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
-                return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                if request.headers.get('Content-Type') == 'application/json':
+                    return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': data}, template_name='announcement/page_error.html')
 
 
 class PageDestroyView(generics.DestroyAPIView):

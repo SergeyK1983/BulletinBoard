@@ -16,15 +16,16 @@
 {% endblock avatar %}
 
 {% block avatar-content %}
-<div class="avatar-content">
-    <ul class="avatar-content-ul">
+{% endblock avatar-content %}
+
+{% block nav-content %}
+<br>
+<div class="nav-content">
+    <ul>
         <li><a href="#">Редактировать профиль</a></li>
         <li><a href="{% url 'logout' %}">Выйти</a></li>
     </ul>
 </div>
-{% endblock avatar-content %}
-
-{% block nav-content %}
 <div class="nav-content">
     <ul>
         <li><a href="{% url 'board-page-create' %}">Добавить публикацию</a></li>

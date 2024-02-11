@@ -3,7 +3,6 @@ from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 from datetime import datetime
 
-# from announcement.services import post_media_directory_path
 from cabinet.models import User
 
 
@@ -35,7 +34,7 @@ class Post(models.Model):
         verbose_name='Категории'
     )
     title = models.CharField(max_length=100, unique=True, verbose_name='Заголовок')
-    article = models.TextField(verbose_name='Содержание')
+    article = models.TextField(max_length=5000, verbose_name='Содержание')
     images = models.ImageField(upload_to=post_media_directory_path, blank=True, null=True, verbose_name="Картинки")
     files = models.FileField(upload_to=post_media_directory_path, blank=True, null=True, verbose_name="Файлы медиа")
     date_create = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
