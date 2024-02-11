@@ -1,5 +1,4 @@
 {% extends 'cabinet/profile.html' %}
-{% load rest_framework %}
 
 {% block content-list %}
 <div class="content-container">
@@ -8,8 +7,44 @@
     <div class="body-title">
         <form action="" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {% render_form serializer %}
-            <input type="submit" value="Save">
+
+            <div class="form-block">
+                <div class="block-1"><label for="{{ form.category.id_for_label }}"> {{form.category.label}}: </label></div>
+                <div class="block-2">
+                    {{form.category}}
+                    <span>{{form.category.errors}}</span>
+                </div>
+            </div>
+            <div class="form-block">
+                <div class="block-1"><label for="{{ form.title.id_for_label }}">{{form.title.label}}:</label></div>
+                <div class="block-2">
+                    {{form.title}}
+                    <span> {{form.title.errors}} </span>
+                </div>
+            </div>
+            <div class="form-block">
+                <div class="block-1"><label for="{{ form.article.id_for_label }}">{{form.article.label}}:</label></div>
+                <div class="block-2">
+                    {{form.article}}
+                    <span> {{form.article.errors}} </span>
+                </div>
+            </div>
+            <div class="form-block">
+                <div class="block-1"><label for="{{ form.images.id_for_label }}">{{form.images.label}}:</label></div>
+                <div class="block-2">
+                    {{form.images}}
+                    <span> {{form.images.errors}} </span>
+                </div>
+            </div>
+            <div class="form-block">
+                <div class="block-1"><label for="{{ form.files.id_for_label }}">{{form.files.label}}:</label></div>
+                <div class="block-2">
+                    {{form.files}}
+                    <span> {{form.files.errors}} </span>
+                </div>
+            </div>
+            <br>
+            <input type="submit" value="Сохранить">
         </form>
     </div>
 </div>

@@ -1,9 +1,19 @@
 from django.db import models
 from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
+from datetime import datetime
 
-from announcement.services import post_media_directory_path
+# from announcement.services import post_media_directory_path
 from cabinet.models import User
+
+
+def post_media_directory_path(instance, filename) -> str:
+    """
+     Приложение announcement, Модель Post. Формирование пути для атрибута upload_to=
+    """
+    date = datetime.now()
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return f"announcement/{instance.author}/{date.year}/{date.month}/{date.day}/{filename}"
 
 
 class Post(models.Model):

@@ -119,8 +119,8 @@ class ProfileDetail(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = UserListFilter
-    # renderer_classes = [TemplateHTMLRenderer]
-    # template_name = "cabinet/profile_list.html"
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = "cabinet/profile_list.html"
 
     def get_queryset(self):
         # Нужно для нормального вывода в json формате
@@ -151,8 +151,8 @@ class ProfileDetail(generics.ListAPIView):
         # j_data = json.dumps(serializer.data)
         # d_data = json.loads(j_data)
 
-        return self.list(request, *args, **kwargs)
-        # return Response(data=data, status=status.HTTP_200_OK)
+        # return self.list(request, *args, **kwargs)
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 # def get_mail(request):

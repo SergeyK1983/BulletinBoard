@@ -82,31 +82,45 @@ class PageCreateView(generics.CreateAPIView):  # generics.CreateAPIView
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)  # без этого с формы ничего не получить
-    renderer_classes = [TemplateHTMLRenderer]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "announcement/create_page.html"
 
     def get(self, request, *args, **kwargs):
-        # метод get только из-за TemplateHTMLRenderer
+        # метод get из-за TemplateHTMLRenderer
         user = User.objects.filter(username=request.user.username)
-        return Response({"profile": user, "serializer": self.get_serializer()})
+        form = FormPost()
+        return Response({"profile": user, "form": form})  # "serializer": self.get_serializer() трудно настроить стили
 
     def post(self, request, *args, **kwargs):
+
+        data = request.data.copy()
+        value = data.pop("category")
+        label = Category.Categories(value[0]).label
+        data.update({"category.categories": label})
+
         # Контекст нужно передать, т.к. в сериалайзере используется поле с контекстом из request
-        serializer = BoardPageSerializer(data=request.data, context={'request': request})
-        print(request.data)
+        serializer = BoardPageSerializer(data=data, context={'request': request})
 
         if not serializer.is_valid():
-            data = {'error': 'Что-то пошло не так ...', 'status': 'HTTP_400_BAD_REQUEST'}
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            data = {'error': 'Переданные данные не корректны ...', 'status': 'HTTP_400_BAD_REQUEST'}
+            if request.headers.get('Content-Type') == 'application/json':
+                return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': data}, template_name='announcement/page_error.html')
 
         if serializer.is_valid(raise_exception=True):
             try:
                 serializer.save()
-                # return Response(serializer.data, status=status.HTTP_201_CREATED)
-                return redirect('board_list')
+                if request.headers.get('Content-Type') == 'application/json':
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    return redirect('board_list')
             except APIException:
                 data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
-                return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                if request.headers.get('Content-Type') == 'application/json':
+                    return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:
+                    return Response({'error': data}, template_name='announcement/page_error.html')
 
 
 class PageUpdateView(generics.RetrieveUpdateAPIView):
@@ -123,7 +137,7 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
-        # метод get только из-за TemplateHTMLRenderer
+        # метод get из-за TemplateHTMLRenderer
         user = User.objects.filter(username=request.user.username)
         queryset = self.get_queryset()
         initial = {
@@ -132,7 +146,6 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
             "article": queryset[0].article,
         }
         form = FormPost(initial=initial)  # instance=queryset[0] все поля или initial переопределить поля
-        # форма от serializer как-то криво работала
         return Response({"profile": user, "posts": queryset, "form": form})
 
     def post(self, request, *args, **kwargs):
