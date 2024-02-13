@@ -3,34 +3,24 @@ import string
 import uuid
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.cache import cache
 from django.core.mail import send_mail
-from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
-from rest_framework.fields import CurrentUserDefault
-# from django_redis import cache
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
-from rest_framework.utils import json
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
 
 from Adboard.settings import LOGIN_URL, SERVER_EMAIL, SERG_USER_CONFIRMATION_KEY, SERG_USER_CONFIRMATION_TIMEOUT
-from coment.models import CommentaryToAuthor
-from .filters import UserListFilter
+
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
 from .serializer import UserSerializer, UserArticleSerializer, ProfileSerializer
-from .services import get_username
+from .services import get_username, return_response
 
 
 # if request.user.is_authenticated:
@@ -117,8 +107,8 @@ class ProfileDetail(generics.ListAPIView):
 
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = UserListFilter
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = UserListFilter
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "cabinet/profile_list.html"
 
@@ -128,46 +118,42 @@ class ProfileDetail(generics.ListAPIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
-        print(kwargs)
-        print(request.GET)
-        print(request.user)
 
         try:
             user = User.objects.get(id=kwargs['id'])
         except ObjectDoesNotExist:
-            data = {'state': 0, 'message': 'Пользователя не существует'}
-            # return Response(data=data, status=status.HTTP_200_OK)
-            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+            data = {'error': 'Пользователя не существует', 'status': 'HTTP_200_OK'}
+            if request.headers.get('Content-Type') == 'application/json':
+                return Response(data=data, status=status.HTTP_200_OK)
+            return Response({'error': data}, template_name='announcement/page_error.html')
 
         if request.user != user:
-            data = {"message": "Тут нет вашей страницы", }
-            # return Response(data=data, status=status.HTTP_200_OK)
-            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+            data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_200_OK'}
+            if request.headers.get('Content-Type') == 'application/json':
+                return Response(data=data, status=status.HTTP_200_OK)
+            return Response({'error': data}, template_name='announcement/page_error.html')
 
         # нужно для TemplateHTMLRenderer:
-        qs1 = User.objects.filter(username=self.request.user.username)
-        qs2 = Post.objects.filter(author=self.request.user.username).order_by("-date_create")
-        data = {'profile': qs1, 'posts': qs2}
+        user_qs = User.objects.filter(username=self.request.user.username)
+        posts = Post.objects.filter(author=self.request.user.username).order_by("-date_create")
+        # posts_filter = self.filterset_class(self.request.GET, posts)
+        # print('фильтр', posts_filter.qs)
+        data = {'profile': user_qs, 'posts': posts}
 
         # можно и так, но фичи работать не будут:
         # serializer = UserSerializer(user)
         # j_data = json.dumps(serializer.data)
         # d_data = json.loads(j_data)
 
+        # if request.headers.get('Content-Type') == 'application/json':
         # return self.list(request, *args, **kwargs)
-        print(data)
         return Response(data=data, status=status.HTTP_200_OK)
-
-
-# def get_mail(request):
-#     # тут что-то
-#     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))  # возвращает на ту же страницу
 
 
 class ProfileArticleDetail(generics.ListAPIView):
     """ Страница просмотра конкретной публикации пользователя """
 
-    serializer_class = UserArticleSerializer  # ProfileSerializer
+    serializer_class = UserArticleSerializer
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [TemplateHTMLRenderer]
     template_name = "cabinet/profile_article.html"
@@ -177,23 +163,26 @@ class ProfileArticleDetail(generics.ListAPIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
-
         try:
             user = User.objects.get(username=kwargs['username'])
         except ObjectDoesNotExist:
-            data = {'state': 0, 'message': 'Пользователя не существует'}
-            # return Response(data=data, status=status.HTTP_200_OK)
-            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+            data = {'error': 'Пользователя не существует', 'status': 'HTTP_200_OK'}
+            return return_response(request=request, data=data, status=status.HTTP_200_OK,
+                                   template='announcement/page_error.html')
 
         if request.user != user:
-            data = {"message": "Тут нет вашей страницы", }
-            # return Response(data=data, status=status.HTTP_200_OK)
-            return HttpResponse(content=data['message'], status=status.HTTP_200_OK)
+            data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_200_OK'}
+            return return_response(request=request, data=data, status=status.HTTP_200_OK,
+                                   template='announcement/page_error.html')
+        elif not list(self.get_queryset()):
+            data = {"error": "Такой записи нет", 'status': 'HTTP_200_OK'}
+            return return_response(request=request, data=data, status=status.HTTP_200_OK,
+                                   template='announcement/page_error.html')
 
-        # нужно для TemplateHTMLRenderer:
-        qs1 = User.objects.filter(username=self.request.user.username)
-        qs2 = Post.objects.filter(id=self.kwargs['id'])
-        data = {'profile': qs1, 'posts': qs2}
+        user_qs = User.objects.filter(username=self.request.user.username)
+        posts = Post.objects.filter(id=self.kwargs['id'])
+        data = {'profile': user_qs, 'posts': posts}
 
-        # return self.list(request, *args, **kwargs)
+        if request.headers.get('Content-Type') == 'application/json':
+            return self.list(request, *args, **kwargs)
         return Response(data=data, status=status.HTTP_200_OK)

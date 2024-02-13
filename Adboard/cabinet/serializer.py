@@ -46,15 +46,13 @@ class AuthorSerializer(serializers.ModelSerializer):
         ]
 
 
-class UserSerializer(AuthorSerializer, serializers.ModelSerializer):
+class UserSerializer(AuthorSerializer):
     """ Для просмотра страницы пользователя """
     posts = ProfileSerializer(many=True, read_only=True)
 
-    class Meta:
+    class Meta(AuthorSerializer.Meta):
         model = User
-        fields = [
-            'posts',
-        ]
+        AuthorSerializer.Meta.fields.append('posts')
 
 
 class UserArticleSerializer(ProfileSerializer):
