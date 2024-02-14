@@ -1,21 +1,21 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+load_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+SECRET_KEY = os.getenv('SECRET_KEY', )
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u18!^&+u#sa^@t@-*o#_=-=m%2eg7@o0g1vl=b3%(zav%a@8l*'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = []
+else:
+    ALLOWED_HOSTS = ['localhost']
 
 AUTH_USER_MODEL = "cabinet.User"
 
@@ -110,12 +110,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Adboard.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-load_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -128,8 +123,6 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -147,16 +140,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
-LANGUAGE_CODE = 'ru'  # 'en-us'
-
-TIME_ZONE = 'Europe/Moscow'  # 'UTC'
-
+LANGUAGE_CODE = 'ru'
+TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
-
 USE_TZ = True
 
+# Redis
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -191,11 +180,11 @@ LOGIN_URL = 'login'  # перенаправить неавторизованно
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', )  # здесь указываем уже свою ПОЛНУЮ почту, с которой будут отправляться письма
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', )
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', )
 
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', )  # ваше имя пользователя
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', )  # пароль от почты
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', )
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', )
 EMAIL_USE_SSL = True  # Яндекс использует ssl
