@@ -39,6 +39,13 @@ INSTALLED_APPS = [
     'announcement.apps.AnnouncementConfig',
     'cabinet.apps.CabinetConfig',
     'coment.apps.ComentConfig',
+
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
 ]
 
 REST_FRAMEWORK = {
@@ -47,6 +54,11 @@ REST_FRAMEWORK = {
 
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
 
     'DEFAULT_RENDERER_CLASSES': [
@@ -88,6 +100,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'Adboard.urls'
@@ -160,8 +173,6 @@ SERG_USER_CONFIRMATION_KEY = "user_confirmation_{token}"  # шаблон для 
 SERG_USER_CONFIRMATION_TIMEOUT = 60  # время в секундах
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # путь к общей папке static, используемой реальным веб-сервером
 STATICFILES_DIRS = []  # [BASE_DIR / 'static']  # список путей для нестандартных папок static
@@ -169,9 +180,9 @@ STATICFILES_DIRS = []  # [BASE_DIR / 'static']  # список путей для
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'  # формат для Django 3+
 
-# LOGIN_REDIRECT_URL = 'home'  # перенаправлять пользователя после успешной авторизации
+LOGIN_REDIRECT_URL = 'board_list'  # перенаправлять пользователя после успешной авторизации
 LOGIN_URL = 'login'  # перенаправить неавторизованного пользователя при попытке посетить закрытую страницу сайта
-# LOGOUT_REDIRECT_URL = 'home'  # перенаправляется пользователь после выхода
+LOGOUT_REDIRECT_URL = 'board_list'  # перенаправляется пользователь после выхода
 
 # DEFAULT_USER_IMAGE = MEDIA_URL + 'cabinet/default.png'
 
@@ -180,11 +191,21 @@ LOGIN_URL = 'login'  # перенаправить неавторизованно
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', )
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', )
+EMAIL_ADMIN = os.getenv('EMAIL_ADMIN', )
 
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
+EMAIL_USE_SSL = True  # Яндекс использует ssl
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', )
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', )
-EMAIL_USE_SSL = True  # Яндекс использует ssl
+
+
+REST_AUTH = {
+   "REGISTER_SERIALIZER": "cabinet.serializer.UserRegisterSerializer",
+   'TOKEN_SERIALIZER': 'dj_rest_auth.serializers.TokenSerializer',
+   'SESSION_LOGIN': True,
+}

@@ -2,7 +2,7 @@
 <div class="filters">
 <form class="filter-form" method="GET">
     {% csrf_token %}
-    <label class="label-form-r" for="author">Автор:</label><input class="input-form-r" type="text" id="author" name="author" maxlength="10" placeholder="например: serg"><br>
+    <label class="label-form-r" for="author">Автор:</label><input class="input-form-r" type="text" id="author" name="author" maxlength="100" placeholder="например: serg"><br>
     <label class="label-form-r" for="date_after">Дата от:</label><input class="input-form-r" type="date" id="date_after" name="date_after"><br>
     <label class="label-form-r" for="date_before">Дата до:</label><input class="input-form-r" type="date" id="date_before" name="date_before"><br>
     <label class="label-form-r">Категория:</label> <div class="input-form-r"></div>
