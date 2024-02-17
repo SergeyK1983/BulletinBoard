@@ -5,6 +5,10 @@
 <div class="content-container">
     <h2 align="center">Мои объявления</h2>
 
+    {% if not posts %}
+    <span> У вас ещё нет публикаций ... </span>
+    {% endif %}
+
     {% for p in posts %}
         <div class="body-title">
             <div class="body-top">

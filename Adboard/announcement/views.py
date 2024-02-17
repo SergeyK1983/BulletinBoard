@@ -6,6 +6,7 @@ from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.views import APIView
 
 from cabinet.models import User
 from .filters import BoardListFilter
@@ -172,5 +173,27 @@ class PageDestroyView(generics.DestroyAPIView):
 
     serializer_class = BoardPageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "announcement/destroy_page.html"
     queryset = Post.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.author != request.user:
+            if request.headers.get('Content-Type') == 'application/json':
+                return Response(data={'error': 'так нельзя делать!'}, status=status.HTTP_200_OK)
+        self.perform_destroy(instance)
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data={'status': 'Публикация удалена!'}, status=status.HTTP_204_NO_CONTENT)
+        return redirect('profile', request.user.id)
+
+    def get(self, request, *args, **kwargs):
+        user = User.objects.filter(username=request.user.username)
+        data = {'profile': user}
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data={'msg': 'Удаление публикаций', 'method': 'POST'}, status=status.HTTP_200_OK)
+        return Response(data=data)
+
+    def post(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 

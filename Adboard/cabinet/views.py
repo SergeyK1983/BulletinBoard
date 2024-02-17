@@ -9,9 +9,11 @@ from dj_rest_auth.registration.serializers import RegisterSerializer
 from dj_rest_auth.serializers import LoginSerializer
 from django.contrib.auth import authenticate
 
+from rest_framework.exceptions import APIException
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView
+
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.shortcuts import redirect
@@ -21,141 +23,127 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
-from dj_rest_auth.views import LoginView as LoginV, LogoutView as LogoutV
+from dj_rest_auth.views import LoginView, LogoutView
 
 from Adboard.settings import LOGIN_URL, SERVER_EMAIL, SERG_USER_CONFIRMATION_KEY, SERG_USER_CONFIRMATION_TIMEOUT
 
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
-from .serializer import UserSerializer, UserArticleSerializer, ProfileSerializer, UserRegisterSerializer, \
-    UserLoginSerializer
+from .serializer import UserSerializer, UserArticleSerializer, ProfileSerializer, UserRegisterSerializer
+
 from .services import get_username, return_response
 
 
-# if request.user.is_authenticated:
-#     ...  # Do something for logged-in users.
-# else:
-#     ...  # Do something for anonymous users.
+class RegisterUser(APIView):
+    """ Регистрация """
 
-
-class RegisterDRFUser(APIView):
     serializer_class = UserRegisterSerializer
-    parser_classes = (MultiPartParser, FormParser)
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
-    template_name = "cabinet/register-drf.html"
+    template_name = "cabinet/register.html"
 
     def get(self, request):
-        serializer = UserRegisterSerializer()
+        form = RegisterUserForm()
+        serializer = self.serializer_class()
         data = serializer.data
         data.update({'content-type': 'multipart/form-data'})
         if request.headers.get('Content-Type') == 'application/json':
             return Response(data=data, status=status.HTTP_200_OK)
-        return Response({"serializer": serializer})
+        return Response({"form": form})
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.POST, context={'request': request})
-        header = re.compile(r"^multipart/form-data")
+        form = RegisterUserForm(request.POST)
+        header = re.compile(r"^multipart/form-data")  # проверяю сначала строки
 
         if serializer.is_valid():
             user = serializer.save(request)
             data = {'id': user.id, 'username': user.username, 'email': user.email}
             if header.search(request.headers.get('Content-Type')):
                 return Response(data=data, status=status.HTTP_201_CREATED)
-            return redirect('board_list')
+            return redirect('login')
 
         if header.search(request.headers.get('Content-Type')):
-            return Response(data={'error': 'не верно введены данные'}, status=status.HTTP_204_NO_CONTENT)
-        return redirect('register-drf')
+            return Response(data={'error': 'не верно введены данные', 'invalid': serializer.errors},
+                            status=status.HTTP_204_NO_CONTENT)
+        return Response({"form": form})
+        # TODO обработать другие форматы на предмет не верного обращения, чтобы не было ошибки сервера
 
 
-class LoginDRFUser(LoginV):
-    serializer_class = UserLoginSerializer
+class LoginUser(LoginView):
+    """ Аутентификация """
+
+    serializer_class = LoginSerializer
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
-    template_name = "cabinet/login_drf.html"
+    template_name = "cabinet/login.html"
 
     def get(self, request):
         serializer = self.serializer_class()
-        return Response({"serializer": serializer})
+        form = LoginUserForm()
+        data = serializer.data
+        data.update({'content-type': 'multipart/form-data'})
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data=data, status=status.HTTP_200_OK)
+        return Response({"form": form})
 
     def post(self, request, *args, **kwargs):
         super().post(request, *args, **kwargs)
         header = re.compile(r"^multipart/form-data")
+
         if header.search(request.headers.get('Content-Type')):
             return self.get_response()
         return redirect('board_list')
-
-
-# class LogoutUser(LogoutView):
-#     permission_classes = [permissions.IsAuthenticated]
-#     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
-#     template_name = "cabinet/logout.html"
-#
-#     def post(self, request, *args, **kwargs):
-#         super().post(request, *args, **kwargs)
-#         return redirect('board_list')
-
-
-class LoginUser(LoginView):
-    form_class = LoginUserForm
-    template_name = 'cabinet/login.html'
-
-    def get_success_url(self):
-        return reverse_lazy('board_list')
+    # TODO доработать дружелюбие формы на предмет неверного ввода
 
 
 class LogoutUser(LogoutView):
-    def get_success_url(self):
-        return reverse_lazy('board_list')
+    """  Выход """
+
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "cabinet/logout.html"
+
+    def get(self, request, *args, **kwargs):
+        return Response(template_name="cabinet/logout.html")
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('Content-Type') == 'application/json':
+            return self.logout(request)
+        else:
+            django_logout(request)
+            return redirect('board_list')
 
 
-class RegisterUser(CreateView):
-    """ Регистрация, создание пользователя """
-    form_class = RegisterUserForm
-    template_name = 'cabinet/register.html'
-    success_url = reverse_lazy('login')
+class DestroyUserView(generics.DestroyAPIView):
+    """ Удаление пользователя """
 
-    # def form_valid(self, form):
-    #     user, created = User.objects.get_or_create(email=form.cleaned_data['email'])
-    #     new_pass = None
-    #     # if created or user.is_active is False:
-    #     if created:
-    #         # на будущую доработку генерирую пароль
-    #         alphabet = string.ascii_letters + string.digits
-    #         new_pass = ''.join(secrets.choice(alphabet) for i in range(8))
-    #         # user.set_password(new_pass)
-    #         # user.save(update_fields=["password", ])
-    #
-    #     # if new_pass or user.is_active is False:
-    #     if new_pass:
-    #         token = uuid.uuid4().hex
-    #         redis_key = SERG_USER_CONFIRMATION_KEY.format(token=token)
-    #         cache.set(redis_key, {'user_id': user.id}, timeout=SERG_USER_CONFIRMATION_TIMEOUT)
-    #
-    #         confirm_link = self.request.build_absolute_uri(
-    #             reverse_lazy("login_confirm", kwargs={'token': token})
-    #         )
-    #
-    #     html_content = render_to_string(
-    #         template_name='cabinet/email.html',
-    #         context={
-    #             'confirm_link': confirm_link,
-    #             'password': new_pass,
-    #         }
-    #     )
-    #     send_mail(
-    #         subject='Доска объявлений',
-    #         message='',
-    #         from_email=SERVER_EMAIL,
-    #         recipient_list=[user.email, ],
-    #         html_message=html_content,
-    #     )
-    #     return super().form_valid(form)
+    queryset = User.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "cabinet/destroy_user.html"
+
+    def get(self, request, *args, **kwargs):
+        user = self.get_queryset().filter(username=request.user.username)
+        data = {'profile': user}
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data={'msg': 'Удаление аккаунта', 'method': 'POST'}, status=status.HTTP_200_OK)
+        return Response(data=data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = get_object_or_404(User, username=request.user.username)
+        self.perform_destroy(instance)
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data={'status': 'Аккаунт пользователя удален'}, status=status.HTTP_204_NO_CONTENT)
+        return redirect('board_list')
+
+    def post(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 class UpdateUser(LoginRequiredMixin, UpdateView):

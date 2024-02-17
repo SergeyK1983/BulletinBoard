@@ -1,0 +1,22 @@
+{% extends 'cabinet/flatpages/default.html' %}
+
+{% block article-content %}
+<div class="content-container">
+    <div class="body-title" style="width:60%">
+        <h3>Удалить профиль?</h3>
+        <div class="form-block">
+            <div class="block-1">
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit">Удалить</button>
+                </form>
+            </div>
+            <div class="block-1">
+                <form action="{% url 'profile' profile.0.id %}" method="GET">
+                    <input type="submit" value="Нет">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock article-content %}

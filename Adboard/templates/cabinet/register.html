@@ -4,7 +4,7 @@
 <div class="content-container">
     <div class="body-title" style="width:60%">
 
-        <form action="" method="post"> {#{% url 'rest_register' %}#}
+        <form action="" method="post">
             {% csrf_token %}
             <div class="form-error">{{ form.non_field_errors }}</div>
             {% for f in form %}

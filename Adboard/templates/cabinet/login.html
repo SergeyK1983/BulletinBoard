@@ -4,7 +4,7 @@
 <div class="content-container">
     <div class="body-title" style="width:60%">
 
-        <form action=""  method="post"> {#{% url 'rest_login' %}#}
+        <form action="" method="post">
             {% csrf_token %}
             <div class="form-error">{{ form.non_field_errors }}</div>
             {% for f in form %}
@@ -12,7 +12,7 @@
                 <div class="block-1"><label for="{{ f.id_for_label }}"> {{f.label}}:</label></div>
                 <div class="block-2">
                     {{ f }}
-                    <span class="form-error"> {{f.errors}} </span>
+                    <span> {{f.errors}} </span>
                 </div>
             </div>
             {% endfor %}

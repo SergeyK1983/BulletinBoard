@@ -1,5 +1,5 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from dj_rest_auth.serializers import LoginSerializer
+from django.utils.translation import gettext_lazy
 from rest_framework import serializers
 
 from announcement.models import Post, Category
@@ -50,6 +50,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 class UserSerializer(AuthorSerializer):
     """ Для просмотра страницы пользователя """
+
     posts = ProfileSerializer(many=True, read_only=True)
 
     class Meta(AuthorSerializer.Meta):
@@ -59,23 +60,43 @@ class UserSerializer(AuthorSerializer):
 
 class UserArticleSerializer(ProfileSerializer):
     """ Для просмотра публикации со страницы пользователя """
+
     author = AuthorSerializer()
 
 
 class UserRegisterSerializer(RegisterSerializer):
     """ Регистрация пользователя """
-    username = serializers.CharField(min_length=4, max_length=100, write_only=True, label="Логин", required=True)
-    email = serializers.CharField(max_length=100, style={'input_type': 'email'}, write_only=True, label="Почта",
-                                  required=True)
-    password1 = serializers.CharField(style={'input_type': 'password'}, write_only=True, label="Пароль", required=True)
-    password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True, label="Повтор пароля",
-                                      required=True)
 
+    username = serializers.CharField(
+        min_length=4,
+        max_length=100,
+        write_only=True,
+        label="Логин",
+        required=True
+    )
+    email = serializers.CharField(
+        max_length=100,
+        style={'input_type': 'email'},
+        write_only=True,
+        label="Почта",
+        required=True
+    )
+    password1 = serializers.CharField(
+        style={'input_type': 'password'},
+        write_only=True,
+        label="Пароль",
+        required=True
+    )
+    password2 = serializers.CharField(
+        style={'input_type': 'password'},
+        write_only=True,
+        label="Повтор пароля",
+        required=True
+    )
 
-class UserLoginSerializer(LoginSerializer):
-    username = serializers.CharField(max_length=100, write_only=True, label="Логин", required=True)
-    email = serializers.CharField(max_length=100, style={'input_type': 'email'}, write_only=True, label="Почта",
-                                  required=True)
-    password = serializers.CharField(style={'input_type': 'password'}, write_only=True, label="Пароль", required=True)
-
+    def validate_email(self, email):
+        super().validate_email(email)
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(gettext_lazy("Такой email уже существует"), )
+        return email
 

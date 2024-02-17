@@ -6,8 +6,8 @@ from cabinet.models import User
 
 
 class LoginUserForm(AuthenticationForm):
-    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input', "autofocus": True}))
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input', "autocomplete": "current-password"}))
     email = forms.EmailField(label='Введите почту', widget=forms.EmailInput(attrs={'class': 'form-input'}))
 
 

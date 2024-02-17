@@ -95,3 +95,4 @@ class BoardPageSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+

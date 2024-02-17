@@ -2,13 +2,21 @@
 
 {% block article-content %}
 <div class="content-container">
-    <h3>Выйти из системы?</h3>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Выйти</button>
-    </form>
-    <form action="{% url 'board_list' %}">
-        <input type="submit" value="Нет">
-    </form>
+    <div class="body-title" style="width:60%">
+        <h3>Выйти из системы?</h3>
+        <div class="form-block">
+            <div class="block-1">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit">Выйти</button>
+                </form>
+            </div>
+            <div class="block-1">
+                <form action="{% url 'board_list' %}">
+                    <input type="submit" value="Нет">
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock article-content %}

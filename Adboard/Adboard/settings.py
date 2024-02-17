@@ -203,9 +203,14 @@ EMAIL_USE_SSL = True  # Яндекс использует ssl
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', )
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', )
 
-
+# dj-rest-auth
 REST_AUTH = {
    "REGISTER_SERIALIZER": "cabinet.serializer.UserRegisterSerializer",
+   'LOGIN_SERIALIZER': 'dj_rest_auth.serializers.LoginSerializer',
    'TOKEN_SERIALIZER': 'dj_rest_auth.serializers.TokenSerializer',
+
+   'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+   'TOKEN_CREATOR': 'dj_rest_auth.utils.default_create_token',
+
    'SESSION_LOGIN': True,
 }
