@@ -22,3 +22,6 @@
     padding: 1% 0%;
     height: 20px;
 }
+.block-next {
+    min-width: 15%;
+}

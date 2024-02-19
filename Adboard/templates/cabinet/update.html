@@ -4,7 +4,7 @@
 <div class="content-container">
     <h3 align="center"> Редактирование профиля пользователя </h3>
     <div class="body-title" >
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data">  {# enctype="multipart/form-data" #}
             {% csrf_token %}
             {#{{ form.as_p }}#}
 
@@ -53,9 +53,20 @@
 
             <button type="submit">Редактировать</button>
         </form>
-        <div>
-            <br>
-            <a href="{% url 'profile' user.id %}">Назад</a>
+        <div class="form-block">
+            <div class="block-next">
+                <br>
+                <a href="{% url 'profile' user.id %}">Назад</a>
+            </div>
+            <div class="block-next">
+                <br>
+                <a href="{% url 'change-pass' %}">Изменить пароль</a>
+
+            </div>
+            <div class="block-next">
+                <br>
+                <a href="{% url 'destroy' %}">Удалить профиль</a>
+            </div>
         </div>
     </div>
 </div>

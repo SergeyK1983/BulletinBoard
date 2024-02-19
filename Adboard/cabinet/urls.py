@@ -1,7 +1,7 @@
 from django.urls import path
 
 from cabinet.views import ProfileDetail, ProfileArticleDetail, LoginUser, LogoutUser, UpdateUserView, RegisterUser, \
-    DestroyUserView
+    DestroyUserView, UserPasswordChange
 
 urlpatterns = [
     path('v1/profile/<int:id>/', ProfileDetail.as_view(), name='profile'),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('v1/profile/register/', RegisterUser.as_view(), name='register'),
     path('v1/profile/destroy/', DestroyUserView.as_view(), name='destroy'),
     path('v1/profile/update/', UpdateUserView.as_view(), name='user-update'),
+    path('v1/profile/change-pass/', UserPasswordChange.as_view(), name='change-pass'),
 ]

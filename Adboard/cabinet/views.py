@@ -1,45 +1,25 @@
-import json
-import secrets
-import string
-import uuid
 import re
-from django.contrib.auth import login as django_login
+
 from django.contrib.auth import logout as django_logout
-from dj_rest_auth.registration.serializers import RegisterSerializer
-from dj_rest_auth.serializers import LoginSerializer
-from django.contrib.auth import authenticate
-
-from rest_framework.exceptions import APIException
-
+from django.utils.translation import gettext_lazy
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.mixins import LoginRequiredMixin
-
-from django.core.cache import cache
-from django.core.mail import send_mail
 from django.shortcuts import redirect
-from django.template.loader import render_to_string
-from django.urls import reverse_lazy
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from rest_framework.generics import get_object_or_404
+
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
-from dj_rest_auth.views import LoginView, LogoutView
+from rest_framework.exceptions import APIException
 
-from Adboard.settings import LOGIN_URL, SERVER_EMAIL, SERG_USER_CONFIRMATION_KEY, SERG_USER_CONFIRMATION_TIMEOUT
+from dj_rest_auth.views import LoginView, LogoutView, PasswordChangeView
+from dj_rest_auth.serializers import LoginSerializer
 
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
-from .serializer import UserSerializer, UserArticleSerializer, ProfileSerializer, UserRegisterSerializer, \
-    UserUpdateSerializer
-
-from .services import get_username, return_response
+from .serializer import UserSerializer, UserArticleSerializer, UserRegisterSerializer, UserUpdateSerializer
+from .services import return_response
 
 
 class RegisterUser(APIView):
@@ -137,7 +117,7 @@ class DestroyUserView(generics.DestroyAPIView):
         return Response(data=data)
 
     def destroy(self, request, *args, **kwargs):
-        instance = get_object_or_404(User, username=request.user.username)
+        instance = generics.get_object_or_404(User, username=request.user.username)
         self.perform_destroy(instance)
         if request.headers.get('Content-Type') == 'application/json':
             return Response(data={'status': 'Аккаунт пользователя удален'}, status=status.HTTP_204_NO_CONTENT)
@@ -175,13 +155,16 @@ class UpdateUserView(generics.RetrieveUpdateAPIView):
         if request.headers.get('Content-Type') == 'application/json':
             return Response(data={'data': serializer.data, 'content-type': 'multipart/form-data'},
                             status=status.HTTP_200_OK)
+        print('Тут3!!!')
         return Response({"profile": user, "form": form})
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        instance = get_object_or_404(User, username=request.user.username)
+        instance = generics.get_object_or_404(User, username=request.user.username)
         serializer = self.serializer_class(instance=instance, data=data, context={'request': request})
         header = re.compile(r"^multipart/form-data")
+        print('Тут2!!!')
+        print(request.headers)
 
         if not serializer.is_valid():
             data = {'error': 'Не корректные данные ...', 'detail': serializer.errors, 'status': 'HTTP_400_BAD_REQUEST'}
@@ -191,16 +174,42 @@ class UpdateUserView(generics.RetrieveUpdateAPIView):
 
         if serializer.is_valid():
             try:
+                print('Тут1!!!')
                 serializer.save()
                 if header.search(request.headers.get('Content-Type')):
+                    print('оЧЕНЬ СТРАННО')
                     data = {'state': 1, 'message': 'Изменение прошло успешно'}
                     return Response(data, status=status.HTTP_200_OK)
+                print('Тут!!!')
                 return redirect('profile', request.user.id)
             except APIException:
                 data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
                 if header.search(request.headers.get('Content-Type')):
                     return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 return Response({'error': data}, template_name='announcement/page_error.html')
+
+
+class UserPasswordChange(PasswordChangeView):
+    """ Изменение пароля """
+
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "cabinet/password_change.html"
+
+    def get(self, request, *args, **kwargs):
+        user = generics.get_object_or_404(User, username=request.user.username)
+        serializer = self.serializer_class()
+        form = serializer.set_password_form_class(user)
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data={'data': serializer.data, 'content-type': 'application/json'},
+                            status=status.HTTP_200_OK)
+        return Response({"form": form})
+
+    def post(self, request, *args, **kwargs):
+        super().post(request, *args, **kwargs)
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response({'detail': gettext_lazy('New password has been saved.')})
+        return redirect('user-update')
 
 
 class ProfileDetail(generics.ListAPIView):
