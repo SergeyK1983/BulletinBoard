@@ -29,29 +29,28 @@ class RegisterUserForm(UserCreationForm):
 
 
 class UpdateUserForm(forms.ModelForm):
-    # username = forms.CharField(label='Логин', disabled=True, widget=forms.TextInput(attrs={'class': 'form-input'}))
+    """
+    Изменение данных пользователя.
+    Проверка введенных значений в форме не отслеживается, проверяю через сериалайзер
+    """
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'photo']
+        fields = ['username', 'first_name', 'last_name', 'email', 'photo', 'date_birth']
         widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-input'}),
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
-            # 'photo': forms.ImageField(),
+            'email': forms.EmailInput(attrs={'class': 'form-input'}),
+            'photo': forms.FileInput(attrs={'accept': 'jpg'}),
+            'date_birth': forms.DateInput(attrs={'type': 'date'})
         }
         labels = {
+            'username': 'Логин',
             'first_name': 'Имя пользователя',
             'last_name': 'Фамилия пользователя',
-            # 'photo': 'Фотография'
+            'email': 'Почта',
+            'photo': 'Аватарка',
+            'date_birth': 'Дата рождения',
         }
-
-    # if email is None:  # проверка
-    #     raise ValidationError("Должен быть хотя бы один символ")
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     email = cleaned_data.get("email")
-    #     if email is None:  # проверка
-    #         raise ValidationError({
-    #             "email": "Должен быть хотя бы один символ"
-    #         })
 

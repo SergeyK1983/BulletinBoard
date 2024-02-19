@@ -36,7 +36,8 @@ from Adboard.settings import LOGIN_URL, SERVER_EMAIL, SERG_USER_CONFIRMATION_KEY
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
-from .serializer import UserSerializer, UserArticleSerializer, ProfileSerializer, UserRegisterSerializer
+from .serializer import UserSerializer, UserArticleSerializer, ProfileSerializer, UserRegisterSerializer, \
+    UserUpdateSerializer
 
 from .services import get_username, return_response
 
@@ -146,20 +147,60 @@ class DestroyUserView(generics.DestroyAPIView):
         return self.destroy(request, *args, **kwargs)
 
 
-class UpdateUser(LoginRequiredMixin, UpdateView):
-    model = User
-    form_class = UpdateUserForm
-    template_name = 'cabinet/update.html'
-    pk_url_kwarg = 'id'
+class UpdateUserView(generics.RetrieveUpdateAPIView):
+    """ Изменение данных пользователя """
+
+    serializer_class = UserUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "cabinet/update.html"
 
     def get_queryset(self):
-        self.queryset = super().get_queryset()
-        username = get_username(request=self.request)  # функция из cabinet.services.py
-        queryset = User.objects.filter(username=username)
+        queryset = User.objects.filter(username=self.request.user.username)
         return queryset
 
-    def get_success_url(self):
-        return reverse_lazy('profile', args=[self.request.user.pk])
+    def get(self, request, *args, **kwargs):
+        user = self.get_queryset()
+        serializer = self.serializer_class(user[0])
+        initial = {
+            "username": user[0].username,
+            "first_name": user[0].first_name,
+            "last_name": user[0].last_name,
+            "email": user[0].email,
+            "photo": user[0].photo,
+            "date_birth": user[0].date_birth,
+        }
+        form = UpdateUserForm(initial=initial)
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data={'data': serializer.data, 'content-type': 'multipart/form-data'},
+                            status=status.HTTP_200_OK)
+        return Response({"profile": user, "form": form})
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        instance = get_object_or_404(User, username=request.user.username)
+        serializer = self.serializer_class(instance=instance, data=data, context={'request': request})
+        header = re.compile(r"^multipart/form-data")
+
+        if not serializer.is_valid():
+            data = {'error': 'Не корректные данные ...', 'detail': serializer.errors, 'status': 'HTTP_400_BAD_REQUEST'}
+            if header.search(request.headers.get('Content-Type')):
+                return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': data}, template_name='announcement/page_error.html')
+
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                if header.search(request.headers.get('Content-Type')):
+                    data = {'state': 1, 'message': 'Изменение прошло успешно'}
+                    return Response(data, status=status.HTTP_200_OK)
+                return redirect('profile', request.user.id)
+            except APIException:
+                data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
+                if header.search(request.headers.get('Content-Type')):
+                    return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': data}, template_name='announcement/page_error.html')
 
 
 class ProfileDetail(generics.ListAPIView):

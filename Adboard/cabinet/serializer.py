@@ -58,6 +58,32 @@ class UserSerializer(AuthorSerializer):
         AuthorSerializer.Meta.fields.append('posts')
 
 
+class UserUpdateSerializer(AuthorSerializer):
+    """ Изменение данных пользователя """
+
+    class Meta(AuthorSerializer.Meta):
+        fields = AuthorSerializer.Meta.fields.copy()
+        fields.remove('posts')
+        fields.remove('id')
+
+    def validate_email(self, email):
+        if self.context['request'].user.email != email:
+            if User.objects.filter(email=email).exists():
+                raise serializers.ValidationError(gettext_lazy("Такой email уже существует"), )
+        return email
+
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get('username', instance.username)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.photo = validated_data.get('photo', instance.photo)
+        instance.date_birth = validated_data.get('date_birth', instance.date_birth)
+
+        instance.save()
+        return instance
+
+
 class UserArticleSerializer(ProfileSerializer):
     """ Для просмотра публикации со страницы пользователя """
 

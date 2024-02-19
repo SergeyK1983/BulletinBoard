@@ -4,6 +4,8 @@ from .models import Post, Category
 
 
 class FormPost(forms.ModelForm):
+    """ Форма для создания и изменения публикации """
+
     category = forms.ChoiceField(choices=Category.Categories.choices, label="Категории")
 
     class Meta:
