@@ -6,12 +6,16 @@ from cabinet.models import User
 
 
 class LoginUserForm(AuthenticationForm):
+    """ Аутентификация пользователя """
+
     username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input', "autofocus": True}))
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input', "autocomplete": "current-password"}))
     email = forms.EmailField(label='Введите почту', widget=forms.EmailInput(attrs={'class': 'form-input'}))
 
 
 class RegisterUserForm(UserCreationForm):
+    """ Регистрация пользователя """
+
     username = forms.CharField(label='Логин', min_length=3, max_length=30, widget=forms.TextInput(attrs={'class': 'form-input'}))
     password1 = forms.CharField(label='Введите пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     password2 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
@@ -33,6 +37,7 @@ class UpdateUserForm(forms.ModelForm):
     Изменение данных пользователя.
     Проверка введенных значений в форме не отслеживается, проверяю через сериалайзер
     """
+    mark = forms.BooleanField(initial=True, widget=forms.HiddenInput())  # метка, понимать откуда пришло
 
     class Meta:
         model = User

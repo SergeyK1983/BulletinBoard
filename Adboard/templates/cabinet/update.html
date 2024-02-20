@@ -4,9 +4,8 @@
 <div class="content-container">
     <h3 align="center"> Редактирование профиля пользователя </h3>
     <div class="body-title" >
-        <form method="post" enctype="multipart/form-data">  {# enctype="multipart/form-data" #}
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {#{{ form.as_p }}#}
 
             <div class="form-block">
                 <div class="block-1"><label for="{{ form.username.id_for_label }}"> {{form.username.label}}: </label></div>
@@ -50,6 +49,7 @@
                     <span>{{form.date_birth.errors}}</span>
                 </div>
             </div>
+            {{form.mark}}
 
             <button type="submit">Редактировать</button>
         </form>

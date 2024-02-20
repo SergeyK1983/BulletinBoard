@@ -155,7 +155,6 @@ class UpdateUserView(generics.RetrieveUpdateAPIView):
         if request.headers.get('Content-Type') == 'application/json':
             return Response(data={'data': serializer.data, 'content-type': 'multipart/form-data'},
                             status=status.HTTP_200_OK)
-        print('Тут3!!!')
         return Response({"profile": user, "form": form})
 
     def post(self, request, *args, **kwargs):
@@ -163,30 +162,26 @@ class UpdateUserView(generics.RetrieveUpdateAPIView):
         instance = generics.get_object_or_404(User, username=request.user.username)
         serializer = self.serializer_class(instance=instance, data=data, context={'request': request})
         header = re.compile(r"^multipart/form-data")
-        print('Тут2!!!')
-        print(request.headers)
 
         if not serializer.is_valid():
             data = {'error': 'Не корректные данные ...', 'detail': serializer.errors, 'status': 'HTTP_400_BAD_REQUEST'}
-            if header.search(request.headers.get('Content-Type')):
+            if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                 return Response(data, status=status.HTTP_400_BAD_REQUEST)
             return Response({'error': data}, template_name='announcement/page_error.html')
-
         if serializer.is_valid():
             try:
-                print('Тут1!!!')
                 serializer.save()
-                if header.search(request.headers.get('Content-Type')):
-                    print('оЧЕНЬ СТРАННО')
+                if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                     data = {'state': 1, 'message': 'Изменение прошло успешно'}
                     return Response(data, status=status.HTTP_200_OK)
-                print('Тут!!!')
                 return redirect('profile', request.user.id)
             except APIException:
                 data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
-                if header.search(request.headers.get('Content-Type')):
+                if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                     return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 return Response({'error': data}, template_name='announcement/page_error.html')
+
+            # TODO обработать другие форматы на предмет не верного обращения, чтобы не было ошибки сервера
 
 
 class UserPasswordChange(PasswordChangeView):
