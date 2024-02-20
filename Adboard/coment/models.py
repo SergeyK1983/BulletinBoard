@@ -7,7 +7,7 @@ from announcement.models import Post
 
 class CommentaryToAuthor(models.Model):
     """
-    Отклики на публикации других авторов
+    Отклики на публикации других авторов. Название модели надо было покороче. :)
     """
     author = models.ForeignKey(User, to_field='username', related_name="comment", on_delete=models.CASCADE, verbose_name='Автор комментария')
     to_post = models.ForeignKey(Post, to_field='title', related_name="comment", on_delete=models.CASCADE, verbose_name='На публикацию')
@@ -24,4 +24,4 @@ class CommentaryToAuthor(models.Model):
         return f"{self.author}: - {self.comment[:20]}"
 
     def get_absolute_url(self):
-        return reverse(viewname='commentary', kwargs={'pk': self.id, 'name': self.author})
+        return reverse(viewname='commentary', kwargs={'pk': self.id})

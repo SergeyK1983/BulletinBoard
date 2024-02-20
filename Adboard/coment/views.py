@@ -1,59 +1,41 @@
-import json
+from django.shortcuts import redirect
+from rest_framework import generics, status, permissions
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+from rest_framework.response import Response
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.mail import send_mail
-from django.http import request, HttpRequest
-from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, FormView
-
-from Adboard.settings import SERVER_EMAIL
-from .models import CommentaryToAuthor
 from announcement.models import Post
+from cabinet.models import User
 from .forms import CommentCreateForm
+from .serializer import CommentSerializer
 
 
-class CommentCreateView(LoginRequiredMixin, CreateView):
-    model = CommentaryToAuthor
-    form_class = CommentCreateForm
-    template_name = 'comment/comment.html'
+class CommentCreateView(generics.CreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "comment/add_comment.html"
 
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        print(self.request.POST)
-        print(self.object.author)
-        print(self.kwargs)
-        # title = Post.objects.get(id=self.kwargs['id'])
-        current_user = self.request.user
-        self.object.author = current_user
-        # print(title)
-        print(current_user)
-        print(self.object.author)
+    def get(self, request, *args, **kwargs):
+        to_post = Post.objects.filter(pk=kwargs['pk'])
+        user = User.objects.get(username=request.user.username)
+        initial = {
+            'author': user.username,
+            'to_post': to_post[0].title,
+        }
+        form = CommentCreateForm(initial=initial, request=request)
+        data = {"Detail": "Метод GET не разрешен"}
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data, status=status.HTTP_200_OK)
+        return Response({"profile": user, "form": form})
 
-        comment = self.request.POST.get['comment']
-        post_title = self.request.POST.get['to_post']
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request, 'kwargs': kwargs}, partial=True)
 
-        # html_content = render_to_string(
-        #     template_name='comment/email_comment.html',
-        #     context={
-        #         'from_user': current_user.username,
-        #         'post_author': '',
-        #         'post_title': post_title,
-        #         'comment': comment,
-        #     }
-        # )
-        # send_mail(
-        #     subject='Доска объявлений',
-        #     message='',
-        #     from_email=SERVER_EMAIL,
-        #     recipient_list=[user.email, ],
-        #     html_message=html_content,
-        # )
+        if serializer.is_valid(raise_exception=True):
+            print("пытаюсь сохранить")
+            serializer.save()
+            print("сохранено")
 
-        return super().form_valid(form)
+        return redirect('board_page', kwargs['pk'])
 
-    def get_success_url(self):
-        # url = self.request.
-        return reverse_lazy('board_list')
 
