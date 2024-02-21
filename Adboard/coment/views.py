@@ -16,26 +16,33 @@ class CommentCreateView(generics.CreateAPIView):
     template_name = "comment/add_comment.html"
 
     def get(self, request, *args, **kwargs):
-        to_post = Post.objects.filter(pk=kwargs['pk'])
-        user = User.objects.get(username=request.user.username)
-        initial = {
-            'author': user.username,
-            'to_post': to_post[0].title,
-        }
-        form = CommentCreateForm(initial=initial, request=request)
         data = {"Detail": "Метод GET не разрешен"}
         if request.headers.get('Content-Type') == 'application/json':
             return Response(data, status=status.HTTP_200_OK)
-        return Response({"profile": user, "form": form})
+
+        if Post.objects.filter(pk=kwargs['pk']).exists():
+            to_post = Post.objects.filter(pk=kwargs['pk'])
+            user = User.objects.get(username=request.user.username)
+            initial = {
+                'author': user.username,
+                'to_post': to_post[0].title,
+            }
+            form = CommentCreateForm(initial=initial, request=request)
+            return Response({"profile": user, "form": form})
+
+        return redirect("board_list")
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request, 'kwargs': kwargs}, partial=True)
 
-        if serializer.is_valid(raise_exception=True):
-            print("пытаюсь сохранить")
-            serializer.save()
-            print("сохранено")
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return redirect('board_page', kwargs['pk'])
 
 
