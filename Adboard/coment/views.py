@@ -5,15 +5,41 @@ from rest_framework.response import Response
 
 from announcement.models import Post
 from cabinet.models import User
+from cabinet.services import return_response
 from .forms import CommentCreateForm
-from .serializer import CommentSerializer
+from .serializer import CommentSerializer, CommentListSerializer
+from .models import CommentaryToAuthor
 
 
-class CommentList(generics.ListAPIView):
+class UserCommentList(generics.ListAPIView):
     """ Просмотр своих комментариев к объявлениям на своей странице """
 
+    serializer_class = CommentListSerializer
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "cabinet/profile_my_commentary.html"
+
+    def get_queryset(self):
+        queryset = CommentaryToAuthor.objects.filter(author=self.request.user.username)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+
+        user = generics.get_object_or_404(User, username=kwargs['username'])
+
+        if request.user != user:
+            data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
+                                   template='announcement/page_error.html')
+
+        user_qs = User.objects.filter(username=self.request.user.username)
+
+        if request.headers.get('Content-Type') == 'application/json':
+            return self.list(request, *args, **kwargs)
+        return Response({"profile": user_qs, "comments": queryset})
+
 
 
 class CommentCreateView(generics.CreateAPIView):

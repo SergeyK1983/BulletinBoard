@@ -29,6 +29,7 @@
 <div class="nav-content">
     <ul>
         <li><a href="{% url 'board-page-create' %}">Добавить публикацию</a></li>
+        <li><a href="{{profile.0.get_commentary_url}}">Мои комментарии</a></li>
         <li><a href="{% url 'board_list' %}">К публикациям</a></li>
     </ul>
 </div>

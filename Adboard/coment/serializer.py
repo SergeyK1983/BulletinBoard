@@ -15,6 +15,14 @@ def validate_queryset_to_post(self):
     return instance
 
 
+class CommentListSerializer(serializers.ModelSerializer):
+    """ Список комментариев """
+
+    class Meta:
+        model = CommentaryToAuthor
+        fields = ('author', 'to_post', 'comment', 'accepted', 'date_create')
+
+
 class CommentSerializer(serializers.ModelSerializer):
     """
     Создание комментариев

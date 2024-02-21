@@ -1,0 +1,49 @@
+{% extends 'cabinet/profile.html' %}
+
+{% block content-list %}
+
+<div class="content-container">
+    <h2 align="center">Мои комментарии</h2>
+
+    {% if not comments %}
+    <span> Вы еще не оставляли комментариев ... </span>
+    {% endif %}
+
+    {% for comment in comments %}
+        <div class="body-title">
+            <div class="body-top">
+                <div class="in-body">
+                    <p> Автор объявления: {{comment.to_post.author.username}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Заголовок: {{comment.to_post.title|truncatechars:30}} </p>
+                </div>
+                <div class="in-body">
+                    <p> Дата комментария: {{comment.date_create}} </p>
+                </div>
+            </div>
+            <div class="in-body">
+                <p><strong>Содержание комментария:</strong><br> {{comment.comment}} </p>
+            </div>
+            <div class="in-body end">
+                {% if comment.accepted %}
+                    <p style="color:green"> Комментарий/предложение принято </p>
+                {% else %}
+                    <p style="color:red"> Комментарий/предложение не принято </p>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<aside class="content-bar">
+    <div class="nav-content">
+        <h3>Фильтрация</h3>
+    </div>
+    <div class="nav-content">
+        <hr>
+        <h3>Пагинация</h3>
+    </div>
+</aside>
+
+{% endblock content-list %}

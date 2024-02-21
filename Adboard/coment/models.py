@@ -23,5 +23,3 @@ class CommentaryToAuthor(models.Model):
     def __str__(self):
         return f"{self.author}: - {self.comment[:20]}"
 
-    def get_absolute_url(self):
-        return reverse(viewname='commentary', kwargs={'pk': self.id})

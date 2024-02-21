@@ -1,6 +1,6 @@
 from django.urls import path
 
-from cabinet.views import ProfileDetail, ProfileArticleDetail, LoginUser, LogoutUser, UpdateUserView, RegisterUser, \
+from .views import ProfileDetail, ProfileArticleDetail, LoginUser, LogoutUser, UpdateUserView, RegisterUser, \
     DestroyUserView, UserPasswordChange
 
 urlpatterns = [
