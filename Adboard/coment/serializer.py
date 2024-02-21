@@ -6,6 +6,9 @@ from .models import CommentaryToAuthor
 
 
 def validate_queryset_to_post(self):
+    """
+    Проверка, что запись действительно существует перед выдачей экземпляра
+    """
     if not Post.objects.filter(pk=self._context['kwargs']['pk']).exists():
         raise serializers.ValidationError({"Detail": "Такой публикации нет ..."})
     instance = Post.objects.get(pk=self._context['kwargs']['pk'])
@@ -16,7 +19,6 @@ class CommentSerializer(serializers.ModelSerializer):
     """
     Создание комментариев
     """
-
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:

@@ -8,16 +8,26 @@
 {% block article-content %}
 <div class="content-container">
     <div class="body-title">
-        <form method="post">
+        <form method="POST">
             {% csrf_token %}
             <div class="form-error">{{ form.non_field_errors }}</div>
+
             {% for f in form %}
-                <p><label class="form-label" for="{{ f.id_for_label }}"> {{f.label}}: </label> {{ f }} </p>
-                <div class="form-error"> {{f.errors}} </div>
+            <div class="form-block">
+                <div class="block-1"><label class="form-label" for="{{ f.id_for_label }}"> {{f.label}}: </label></div>
+                <div class="block-2">
+                    {{ f }}
+                    <span> {{f.errors}} </span>
+                </div>
+            </div>
             {% endfor %}
+
             <button type="submit">Отправить</button>
         </form>
-        <a href="{% url 'board_list' %}"> На главную </a>
+        <div>
+            <br>
+            <a href="{{url_post}}"> Назад </a>
+        </div>
     </div>
 </div>
 {% endblock article-content %}

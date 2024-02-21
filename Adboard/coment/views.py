@@ -9,7 +9,16 @@ from .forms import CommentCreateForm
 from .serializer import CommentSerializer
 
 
+class CommentList(generics.ListAPIView):
+    """ Просмотр своих комментариев к объявлениям на своей странице """
+
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+
+
 class CommentCreateView(generics.CreateAPIView):
+    """ Создание комментария к объявлению """
+
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
@@ -28,13 +37,13 @@ class CommentCreateView(generics.CreateAPIView):
                 'to_post': to_post[0].title,
             }
             form = CommentCreateForm(initial=initial, request=request)
-            return Response({"profile": user, "form": form})
+            return Response({"profile": user, "form": form, "url_post": to_post[0].get_absolute_url()})
 
         return redirect("board_list")
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request, 'kwargs': kwargs}, partial=True)
-
+        serializer = self.serializer_class(data=request.data, context={'request': request, 'kwargs': kwargs},
+                                           partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

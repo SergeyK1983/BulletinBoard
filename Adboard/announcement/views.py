@@ -63,7 +63,6 @@ class BoardPageListView(generics.ListAPIView):
         return queryset
 
     def get(self, request, *args, **kwargs):
-        print('kwargs=> ', kwargs)
         queryset = self.get_queryset()
         if not list(queryset):
             data = {'error': 'Такой страницы нет либо записей нет.',

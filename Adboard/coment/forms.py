@@ -15,8 +15,8 @@ class CommentCreateForm(forms.ModelForm):
             'comment': "Комментарий",
         }
         widgets = {
-            'author': forms.TextInput(attrs={'disabled': True}),
-            'to_post': forms.TextInput(attrs={'disabled': True})
+            'author': forms.TextInput(attrs={'class': 'form-input', 'disabled': True}),
+            'to_post': forms.TextInput(attrs={'class': 'form-input', 'disabled': True}),
+            'comment': forms.Textarea(attrs={'class': 'form-textarea', 'rows': 15, "autofocus": True})
         }
-
 
