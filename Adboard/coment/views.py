@@ -7,8 +7,50 @@ from announcement.models import Post
 from cabinet.models import User
 from cabinet.services import return_response
 from .forms import CommentCreateForm
-from .serializer import CommentSerializer, CommentListSerializer
+from .serializer import CommentSerializer, CommentListSerializer, CommentAcceptedSerializer
 from .models import CommentaryToAuthor
+from .services import get_check_user, get_check_post_pk
+
+
+class PostCommentList(generics.RetrieveUpdateAPIView):
+    """ Просмотр комментариев к своему объявлению """
+
+    serializer_class = CommentListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "cabinet/profile_commentary_to_my_post.html"
+
+    def get_queryset(self):
+        queryset = CommentaryToAuthor.objects.filter(to_post__id=self.kwargs['pk']).order_by("-date_create")
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        # get_check_user(request, **kwargs)
+        # get_check_post_pk(request, **kwargs)
+
+        user = generics.get_object_or_404(User, username=kwargs['username'])
+        if request.user != user:
+            data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
+                                   template='announcement/page_error.html')
+
+        if not Post.objects.filter(pk=kwargs['pk']).exists():
+            data = {"error": "Такой публикации нет ...", 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
+                                   template='announcement/page_error.html')
+
+        user_qs = User.objects.filter(username=self.request.user.username)
+        serializer = self.serializer_class(queryset, many=True)
+
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"profile": user_qs, "comments": queryset, "com_page": True})
+
+    def post(self, request, *args, **kwargs):
+        print("kwargs=>", kwargs)
+        print("request=> ", request.data)
+        return redirect('board_list')
 
 
 class UserCommentList(generics.ListAPIView):
@@ -25,10 +67,8 @@ class UserCommentList(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.serializer_class(queryset, many=True)
 
         user = generics.get_object_or_404(User, username=kwargs['username'])
-
         if request.user != user:
             data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_204_NO_CONTENT'}
             return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
@@ -38,8 +78,7 @@ class UserCommentList(generics.ListAPIView):
 
         if request.headers.get('Content-Type') == 'application/json':
             return self.list(request, *args, **kwargs)
-        return Response({"profile": user_qs, "comments": queryset})
-
+        return Response({"profile": user_qs, "comments": queryset, "com_page": True})
 
 
 class CommentCreateView(generics.CreateAPIView):
@@ -81,3 +120,41 @@ class CommentCreateView(generics.CreateAPIView):
         return redirect('board_page', kwargs['pk'])
 
 
+class CommentUpdateView(generics.RetrieveUpdateAPIView):
+    """  Изменение статуса комментария на принято (accepted). """
+
+    serializer_class = CommentAcceptedSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    template_name = "cabinet/profile_commentary_to_my_post.html"
+
+    def get_queryset(self):
+        queryset = CommentaryToAuthor.objects.filter(id=self.kwargs['pk'])
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        data = {"Detail": "Метод GET не разрешен"}
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        print('request=> ', request.data)
+        print('kwargs=> ', kwargs)
+
+        instance = self.get_queryset()[0]
+        print("instance=> ", instance)
+
+        serializer = self.serializer_class(instance, request.data)
+        if not serializer.is_valid():
+            data = {"error": serializer.errors, 'status': 'HTTP_400_BAD_REQUEST'}
+            return return_response(request=request, data=data, status=status.HTTP_400_BAD_REQUEST,
+                                   template='announcement/page_error.html')
+
+        if serializer.is_valid():
+            print("val_data_view=> ", serializer.validated_data)
+            serializer.save()
+            print('serializer=>', serializer.data)
+
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return redirect('board_list')

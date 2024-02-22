@@ -1,0 +1,52 @@
+{% extends 'cabinet/profile.html' %}
+
+{% block content-list %}
+
+<div class="content-container">
+    <h2 align="center">Комментарии на публикацию: {{comments.0.to_post.title}} </h2>
+
+    {% if not comments %}
+    <span> На эту публикацию комментариев ещё не оставляли ... </span>
+    {% endif %}
+
+    {% for comment in comments %}
+        <div class="body-title">
+            <div class="body-top">
+                <div class="in-body">
+                    <span> Автор комментария: {{comment.author.username}} </span>
+                </div>
+                <div class="in-body">
+                    <span> Дата комментария: {{comment.date_create}} </span>
+                </div>
+                <div class="in-body">
+                    {% if comment.accepted %}
+                    <span style="color:green"> Вы приняли предложение </span>
+                {% else %}
+                    <form method="POST">
+                        <input type="hidden" name="accepted" value="{{comment.get_comment_id}}">
+                        <input type="submit" dirname="accepted" value="Принять предложение" style="color:red">
+                        <!-- <input type="submit" dirname="accepted" formaction="{{comment.get_accepted_url}}" value="Принять предложение" style="color:red"> -->
+                    </form>  <!-- <a href="{{comment.get_accepted_url}}"> Принять предложение </a> -->
+                {% endif %}
+                </div>
+            </div>
+            <div class="in-body">
+                <p><strong>Содержание комментария:</strong><br> {{comment.comment}} </p>
+            </div>
+            <div class="in-body end">
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<aside class="content-bar">
+    <div class="nav-content">
+        <h3>Фильтрация</h3>
+    </div>
+    <div class="nav-content">
+        <hr>
+        <h3>Пагинация</h3>
+    </div>
+</aside>
+
+{% endblock content-list %}

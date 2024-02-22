@@ -13,21 +13,21 @@
         <div class="body-title">
             <div class="body-top">
                 <div class="in-body">
-                    <p> Заголовок: {{p.title|truncatechars:30}} </p>
+                    <span> Заголовок: {{p.title|truncatechars:30}} </span>
                 </div>
                 <div class="in-body">
-                    <p> Категория: {{p.category.get_categories_display}} </p>
+                    <span> Категория: {{p.category.get_categories_display}} </span>
                 </div>
                 <div class="in-body">
-                    <p> Дата публикации: {{p.date_create}} </p>
+                    <span> Дата публикации: {{p.date_create}} </span>
                 </div>
             </div>
             <div class="in-body">
                 <p><strong>Содержание (превью):</strong><br> {{p.preview}} </p>
             </div>
             <div class="in-body end">
-                <p><a href="{% url 'profile-article' profile.0.username p.id %}">Смотреть полностью</a></p>
-                <p><a href="#">Смотреть комментарии/отклики к объявлению</a></p>
+                <span><a href="{% url 'profile-article' profile.0.username p.id %}">Смотреть полностью</a></span>
+                <span><a href="{{p.get_comment_my_post_url}}">Смотреть комментарии/отклики к объявлению</a></span>
             </div>
         </div>
     {% endfor %}

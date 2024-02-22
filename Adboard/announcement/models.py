@@ -61,8 +61,12 @@ class Post(models.Model):
     def __str__(self):
         return f"{self.author}: {self.category} - {self.title[:20]}"
 
+    def get_comment_my_post_url(self):
+        """ view in coment """
+        return reverse(viewname='comments-to-post', kwargs={'username': self.author.username, 'pk': self.id})
+
     def get_absolute_url(self):
-        return reverse(viewname='board_page', kwargs={'pk': self.id})  # 'name': self.author})
+        return reverse(viewname='board_page', kwargs={'pk': self.id})
 
 
 class Category(models.Model):

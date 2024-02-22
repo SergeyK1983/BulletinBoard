@@ -41,13 +41,11 @@ class BoardListView(generics.ListAPIView):
             if pages is not None:
                 serializer = self.get_serializer(pages, many=True)
                 return self.get_paginated_response(serializer.data)
-            else:
-                return self.list(request, *args, **kwargs)
+            return self.list(request, *args, **kwargs)
         else:
             if pages is not None:
                 return self.get_paginated_response(pages)
-            else:
-                return Response({"board_list": qs, "pagination": False})
+            return Response({"board_list": qs, "pagination": False})
 
 
 class BoardPageListView(generics.ListAPIView):

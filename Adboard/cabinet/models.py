@@ -26,6 +26,7 @@ class User(AbstractUser):
         return f"{self.pk} - {self.username}"
 
     def get_commentary_url(self):
+        """ view in coment """
         return reverse(viewname='my-comment', kwargs={'username': self.username})
 
     def get_absolute_url(self):

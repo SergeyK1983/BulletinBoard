@@ -7,7 +7,7 @@ from .models import CommentaryToAuthor
 
 def validate_queryset_to_post(self):
     """
-    Проверка, что запись действительно существует перед выдачей экземпляра
+    Проверка, что запись действительно существует перед выдачей экземпляра. Использовано в CommentSerializer.
     """
     if not Post.objects.filter(pk=self._context['kwargs']['pk']).exists():
         raise serializers.ValidationError({"Detail": "Такой публикации нет ..."})
@@ -42,4 +42,24 @@ class CommentSerializer(serializers.ModelSerializer):
         validated_data.update({'to_post': validate_queryset_to_post(self)})
         instance = CommentaryToAuthor.objects.create(**validated_data)
         return instance
+
+
+class CommentAcceptedSerializer(serializers.ModelSerializer):
+    """ Изменение статуса комментария на принято (accepted) """
+
+    class Meta:
+        model = CommentaryToAuthor
+        fields = ('accepted', )
+
+    def validate_accepted(self, value):
+        if not value:
+            raise serializers.ValidationError("Должен быть True")
+        return value
+
+    def update(self, instance, validated_data):
+        print("val_data=>", validated_data)
+        instance.accepted = validated_data.get('accepted', instance.accepted)
+        instance.save()
+        return instance
+
 

@@ -13,13 +13,13 @@
         <div class="body-title">
             <div class="body-top">
                 <div class="in-body">
-                    <p> Автор объявления: {{comment.to_post.author.username}} </p>
+                    <span> Автор объявления: {{comment.to_post.author.username}} </span>
                 </div>
                 <div class="in-body">
-                    <p> Заголовок: {{comment.to_post.title|truncatechars:30}} </p>
+                    <span> Заголовок: {{comment.to_post.title|truncatechars:30}} </span>
                 </div>
                 <div class="in-body">
-                    <p> Дата комментария: {{comment.date_create}} </p>
+                    <span> Дата комментария: {{comment.date_create}} </span>
                 </div>
             </div>
             <div class="in-body">
@@ -27,9 +27,9 @@
             </div>
             <div class="in-body end">
                 {% if comment.accepted %}
-                    <p style="color:green"> Комментарий/предложение принято </p>
+                    <span style="color:green"> Комментарий/предложение принято </span>
                 {% else %}
-                    <p style="color:red"> Комментарий/предложение не принято </p>
+                    <span style="color:red"> Комментарий/предложение не принято </span>
                 {% endif %}
             </div>
         </div>
