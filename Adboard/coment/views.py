@@ -5,11 +5,10 @@ from rest_framework.response import Response
 
 from announcement.models import Post
 from cabinet.models import User
-from cabinet.services import return_response
 from .forms import CommentCreateForm
 from .serializer import CommentSerializer, CommentListSerializer, CommentAcceptedSerializer
 from .models import CommentaryToAuthor
-from .services import get_check_user, get_check_post_pk
+from .services import return_response, get_check_user, get_check_post_pk, get_check_comment_queryset
 
 
 class PostCommentList(generics.RetrieveUpdateAPIView):
@@ -26,8 +25,6 @@ class PostCommentList(generics.RetrieveUpdateAPIView):
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        # get_check_user(request, **kwargs)
-        # get_check_post_pk(request, **kwargs)
 
         user = generics.get_object_or_404(User, username=kwargs['username'])
         if request.user != user:
@@ -47,14 +44,9 @@ class PostCommentList(generics.RetrieveUpdateAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"profile": user_qs, "comments": queryset, "com_page": True})
 
-    def post(self, request, *args, **kwargs):
-        print("kwargs=>", kwargs)
-        print("request=> ", request.data)
-        return redirect('board_list')
-
 
 class UserCommentList(generics.ListAPIView):
-    """ Просмотр своих комментариев к объявлениям на своей странице """
+    """ Просмотр своих комментариев к объявлениям других авторов на своей странице """
 
     serializer_class = CommentListSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -112,15 +104,14 @@ class CommentCreateView(generics.CreateAPIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        serializer.save()
 
         if request.headers.get('Content-Type') == 'application/json':
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return redirect('board_page', kwargs['pk'])
 
 
-class CommentUpdateView(generics.RetrieveUpdateAPIView):
+class CommentAcceptedUpdateView(generics.UpdateAPIView):
     """  Изменение статуса комментария на принято (accepted). """
 
     serializer_class = CommentAcceptedSerializer
@@ -132,17 +123,15 @@ class CommentUpdateView(generics.RetrieveUpdateAPIView):
         queryset = CommentaryToAuthor.objects.filter(id=self.kwargs['pk'])
         return queryset
 
-    def get(self, request, *args, **kwargs):
-        data = {"Detail": "Метод GET не разрешен"}
-        if request.headers.get('Content-Type') == 'application/json':
-            return Response(data, status=status.HTTP_200_OK)
-
     def post(self, request, *args, **kwargs):
-        print('request=> ', request.data)
-        print('kwargs=> ', kwargs)
+        queryset = self.get_queryset()
 
-        instance = self.get_queryset()[0]
-        print("instance=> ", instance)
+        if not list(queryset):
+            data = {"error": "Такого комментария нет ...", 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
+                                   template='announcement/page_error.html')
+
+        instance = queryset[0]
 
         serializer = self.serializer_class(instance, request.data)
         if not serializer.is_valid():
@@ -150,11 +139,8 @@ class CommentUpdateView(generics.RetrieveUpdateAPIView):
             return return_response(request=request, data=data, status=status.HTTP_400_BAD_REQUEST,
                                    template='announcement/page_error.html')
 
-        if serializer.is_valid():
-            print("val_data_view=> ", serializer.validated_data)
-            serializer.save()
-            print('serializer=>', serializer.data)
+        serializer.save()
 
         if request.headers.get('Content-Type') == 'application/json':
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-        return redirect('board_list')
+        return redirect('comments-to-post', request.user.username, instance.to_post.id)

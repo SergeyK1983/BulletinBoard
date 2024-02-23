@@ -24,9 +24,8 @@ class CommentListSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """
-    Создание комментариев
-    """
+    """ Создание комментариев """
+
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
@@ -57,7 +56,6 @@ class CommentAcceptedSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        print("val_data=>", validated_data)
         instance.accepted = validated_data.get('accepted', instance.accepted)
         instance.save()
         return instance

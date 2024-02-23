@@ -23,10 +23,11 @@
                     <span style="color:green"> Вы приняли предложение </span>
                 {% else %}
                     <form method="POST">
-                        <input type="hidden" name="accepted" value="{{comment.get_comment_id}}">
-                        <input type="submit" dirname="accepted" value="Принять предложение" style="color:red">
-                        <!-- <input type="submit" dirname="accepted" formaction="{{comment.get_accepted_url}}" value="Принять предложение" style="color:red"> -->
-                    </form>  <!-- <a href="{{comment.get_accepted_url}}"> Принять предложение </a> -->
+                        {% csrf_token %}
+                        <input type="hidden" name="accepted" value="True">
+                        <input type="hidden" name="id" value="{{comment.get_comment_id}}">
+                        <input type="submit" formaction="{{comment.get_accepted_url}}" value="Принять предложение" style="color:red">
+                    </form>
                 {% endif %}
                 </div>
             </div>
