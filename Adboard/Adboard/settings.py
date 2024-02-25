@@ -159,6 +159,9 @@ USE_I18N = True
 USE_TZ = True
 
 # Redis
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = '6379'
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -171,6 +174,18 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 Mb limit
 # две переменные, чтобы не путаться; SERG - потому что мои переменные, а не django, чтобы не забыть.
 SERG_USER_CONFIRMATION_KEY = "user_confirmation_{token}"  # шаблон для ключа
 SERG_USER_CONFIRMATION_TIMEOUT = 60  # время в секундах
+
+# Celery
+# команда при запуске с windows: celery -A Adboard worker -l INFO -P solo
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 5 * 60}
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+CELERY_BROKER_CONNECTION_RETRY = True
+CELERY_BROKER_CONNECTION_MAX_RETRIES = 5
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
