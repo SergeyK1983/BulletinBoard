@@ -7,12 +7,16 @@ from announcement.models import Post, Category
 from .models import User
 
 
-class CategoriesFilter(Filter):
+class DateAfterFilter(Filter):
     def filter(self, qs, value):
         if value is not None:
-            user = User.objects.get(username='serg')
-            qs = user.posts.filter(category__categories=value)
+            qs = Post.objects.filter(author=self.request.user.username)
         return qs
+
+
+def posts(request):
+    user = request.user.username
+    return user.posts.all()
 
 
 class PostsListFilter(filters.FilterSet):
@@ -34,4 +38,13 @@ class PostsListFilter(filters.FilterSet):
 
 class UserListFilter(filters.FilterSet):
     """ Фильтр публикаций """
-    pass
+
+    date_after = filters.DateFilter(field_name='posts__date_create', lookup_expr='date__gte', label='Дата после:')
+
+    class Meta:
+        model = User
+        fields = []
+        # fields = {
+        #     'posts__date_create': ('date__gte', ),
+        # }
+

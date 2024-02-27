@@ -30,6 +30,7 @@ class BoardListView(generics.ListAPIView):
     template_name = "announcement/board_title.html"
 
     def get(self, request, *args, **kwargs):
+        print(request.query_params)
         # все танцы с фильтрацией из-за пагинации в основном для TemplateHTMLRenderer, а так могло бы работать штатно.
         queryset = self.get_queryset()
         filter_board = self.filterset_class(self.request.GET, queryset)

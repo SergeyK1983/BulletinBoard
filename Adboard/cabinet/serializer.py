@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from announcement.models import Post, Category
 from .models import User
+from .services import get_queryset_filter
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -18,6 +19,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     """ Публикации авторов """
+
     category = CategorySerializer(label="Категории")
 
     class Meta:
@@ -35,6 +37,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class AuthorSerializer(serializers.ModelSerializer):
+    """ Данные авторов """
+
     class Meta:
         model = User
         fields = [
@@ -48,14 +52,31 @@ class AuthorSerializer(serializers.ModelSerializer):
         ]
 
 
-class UserSerializer(AuthorSerializer):
+class UserProfileSerializer(AuthorSerializer):
     """ Для просмотра страницы пользователя """
 
-    posts = ProfileSerializer(many=True, read_only=True)
+    posts = serializers.SerializerMethodField()
 
     class Meta(AuthorSerializer.Meta):
         model = User
         AuthorSerializer.Meta.fields.append('posts')
+
+    def get_posts(self, instance):
+        author = self.context['request'].user.username
+        date_after = self.context['request'].query_params.get('date_after', None)
+        date_before = self.context['request'].query_params.get('date_before', None)
+        category = self.context['request'].query_params.get('category', None)
+        if not any([date_after, date_before, category]):
+            queryset = Post.objects.filter(author=author)
+        else:
+            queryset = get_queryset_filter(author, date_after, date_before, category)
+        return ProfileSerializer(queryset.order_by('-date_create'), many=True).data
+
+
+class UserArticleSerializer(ProfileSerializer):
+    """ Для просмотра публикации со страницы пользователя """
+
+    author = AuthorSerializer()
 
 
 class UserUpdateSerializer(AuthorSerializer):
@@ -82,12 +103,6 @@ class UserUpdateSerializer(AuthorSerializer):
 
         instance.save()
         return instance
-
-
-class UserArticleSerializer(ProfileSerializer):
-    """ Для просмотра публикации со страницы пользователя """
-
-    author = AuthorSerializer()
 
 
 class UserRegisterSerializer(RegisterSerializer):
