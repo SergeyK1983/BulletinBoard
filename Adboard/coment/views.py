@@ -8,7 +8,7 @@ from cabinet.models import User
 from .forms import CommentCreateForm
 from .serializer import CommentSerializer, CommentListSerializer, CommentAcceptedSerializer
 from .models import CommentaryToAuthor
-from .services import return_response, get_check_user, get_check_post_pk, get_check_comment_queryset
+from .services import return_response
 
 
 class PostCommentList(generics.RetrieveUpdateAPIView):

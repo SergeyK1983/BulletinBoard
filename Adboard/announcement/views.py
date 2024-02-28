@@ -1,5 +1,7 @@
+import re
+
 from django.shortcuts import redirect
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
@@ -84,32 +86,40 @@ class PageCreateView(generics.CreateAPIView):
 
     def get(self, request, *args, **kwargs):
         # метод get из-за TemplateHTMLRenderer
+        if request.headers.get('Content-Type') == 'application/json':
+            return Response(data={"Detail": "Метод GET не разрешен"}, status=status.HTTP_200_OK)
+
         user = User.objects.filter(username=request.user.username)
         form = FormPost()
         return Response({"profile": user, "form": form})  # "serializer": self.get_serializer() трудно настроить стили
 
     def post(self, request, *args, **kwargs):
         data = correct_form_category_for_serializer(request=request)
-        # Контекст нужно передать, т.к. в сериалайзере используется поле с контекстом из request
         serializer = BoardPageSerializer(data=data, context={'request': request})
+        header = re.compile(r"^multipart/form-data")
 
         if not serializer.is_valid():
-            data = {'error': 'Переданные данные не корректны ...', 'status': 'HTTP_400_BAD_REQUEST'}
-            if request.headers.get('Content-Type') == 'application/json':
-                return Response(data, status=status.HTTP_400_BAD_REQUEST)
-            return Response({'error': data}, template_name='announcement/page_error.html')
+            data_err = {'error': serializer.errors, 'status': 'HTTP_400_BAD_REQUEST'}
+            if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
+                return Response(data_err, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': data_err}, template_name='announcement/page_error.html')
 
         if serializer.is_valid(raise_exception=True):
             try:
                 serializer.save()
-                if request.headers.get('Content-Type') == 'application/json':
+                if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 return redirect('board_list')
+            except ValidationError as e:
+                data_err = {'error': e.detail, 'status': 'HTTP_400_BAD_REQUEST'}
+                if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
+                    return Response(data_err, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': data_err}, template_name='announcement/page_error.html')
             except APIException:
-                data = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
-                if request.headers.get('Content-Type') == 'application/json':
-                    return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                return Response({'error': data}, template_name='announcement/page_error.html')
+                data_err = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
+                if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
+                    return Response(data_err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': data_err}, template_name='announcement/page_error.html')
 
 
 class PageUpdateView(generics.RetrieveUpdateAPIView):
@@ -127,6 +137,9 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
 
     def get(self, request, *args, **kwargs):
         # метод get из-за TemplateHTMLRenderer
+        if request.headers.get('Content-Type') == 'application/json':
+            return self.retrieve(request, *args, **kwargs)
+
         user = User.objects.filter(username=request.user.username)
         queryset = self.get_queryset()
         initial = {

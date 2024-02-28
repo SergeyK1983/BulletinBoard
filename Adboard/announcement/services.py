@@ -1,3 +1,6 @@
+from django.utils.translation import gettext_lazy
+from rest_framework.exceptions import ValidationError
+
 from .models import Category
 
 
@@ -15,6 +18,9 @@ def correct_form_category_for_serializer(request):
     """
     data = request.data.copy()
     value = data.pop("category")
-    label = Category.Categories(value[0]).label
+    try:
+        label = Category.Categories(value[0]).label
+    except ValueError:
+        raise ValidationError(gettext_lazy(f"Не верно указана категория {value[0]}."), )
     data.update({"category.categories": label})
     return data

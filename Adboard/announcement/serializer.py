@@ -1,3 +1,6 @@
+from datetime import date
+
+from django.utils.translation import gettext_lazy
 from rest_framework import serializers
 
 from announcement.models import Post, Category
@@ -52,6 +55,11 @@ class BoardPageSerializer(serializers.ModelSerializer):
             'files',
         )
 
+    def check_post_date_limit(self):
+        user = self.context['request'].user.username
+        if Post.objects.filter(author=user, date_create__date=date.today()).count() > 2:
+            raise serializers.ValidationError(gettext_lazy("Вы превысили лимит объявлений за сутки"), )
+
     @staticmethod
     def get_value_category(label):
         """ Выдает переменную из Categories модели Category по приходящему label """
@@ -68,6 +76,8 @@ class BoardPageSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        self.check_post_date_limit()
+
         category = validated_data['category'].pop('categories')
 
         value = BoardPageSerializer.get_value_category(label=category)
