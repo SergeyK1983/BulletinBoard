@@ -82,9 +82,8 @@ class CommentCreateView(generics.CreateAPIView):
     template_name = "comment/add_comment.html"
 
     def get(self, request, *args, **kwargs):
-        data = {"Detail": "Метод GET не разрешен"}
         if request.headers.get('Content-Type') == 'application/json':
-            return Response(data, status=status.HTTP_200_OK)
+            return Response(data={"Detail": "Метод GET не разрешен"}, status=status.HTTP_200_OK)
 
         if Post.objects.filter(pk=kwargs['pk']).exists():
             to_post = Post.objects.filter(pk=kwargs['pk'])

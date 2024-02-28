@@ -13,7 +13,9 @@
 <div class="nav-content">
     <ul>
         <li><a href="{% url 'board_list' %}">К публикациям</a></li>
+        {% if request.user.is_authenticated %}
         <li><a href="{% url 'add-comment' board_page.0.id %}">Оставить комментарий</a></li>
+        {% endif %}
     </ul>
 </div>
 <div class="nav-content">
