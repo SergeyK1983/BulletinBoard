@@ -84,3 +84,11 @@ def get_queryset_filter(author, date_after=None, date_before=None, category=None
     except IndexError:
         return Post.objects.none()
     return queryset
+
+
+def get_filter_posts_for_template(author, date_after=None, date_before=None, category=None):
+    if not any([date_after, date_before, category]):
+        queryset = Post.objects.filter(author=author)
+    else:
+        queryset = get_queryset_filter(author, date_after, date_before, category)
+    return queryset.order_by('-date_create')

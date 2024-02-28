@@ -6,7 +6,6 @@ from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework import generics, permissions, status
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.views import APIView
 
 from cabinet.models import User
 from .filters import BoardListFilter
@@ -30,7 +29,6 @@ class BoardListView(generics.ListAPIView):
     template_name = "announcement/board_title.html"
 
     def get(self, request, *args, **kwargs):
-        print(request.query_params)
         # все танцы с фильтрацией из-за пагинации в основном для TemplateHTMLRenderer, а так могло бы работать штатно.
         queryset = self.get_queryset()
         filter_board = self.filterset_class(self.request.GET, queryset)
@@ -43,10 +41,10 @@ class BoardListView(generics.ListAPIView):
                 serializer = self.get_serializer(pages, many=True)
                 return self.get_paginated_response(serializer.data)
             return self.list(request, *args, **kwargs)
-        else:
-            if pages is not None:
-                return self.get_paginated_response(pages)
-            return Response({"board_list": qs, "pagination": False})
+
+        if pages is not None:
+            return self.get_paginated_response(pages)
+        return Response({"board_list": qs, "pagination": False})
 
 
 class BoardPageListView(generics.ListAPIView):
@@ -68,13 +66,11 @@ class BoardPageListView(generics.ListAPIView):
                     'status': 'HTTP_404_NOT_FOUND'}
             if request.headers.get('Content-Type') == 'application/json':
                 return Response(data, status=status.HTTP_404_NOT_FOUND)
-            else:
-                return Response({'error': data}, template_name='announcement/page_error.html')
+            return Response({'error': data}, template_name='announcement/page_error.html')
 
         if request.headers.get('Content-Type') == 'application/json':
             return self.list(request, *args, **kwargs)
-        else:
-            return Response({'board_page': queryset})
+        return Response({'board_page': queryset})
 
 
 class PageCreateView(generics.CreateAPIView):

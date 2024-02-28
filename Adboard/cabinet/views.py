@@ -1,11 +1,9 @@
 import re
 
 from django.contrib.auth import logout as django_logout
-from django.db.models import Q
 from django.utils.translation import gettext_lazy
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
-from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
@@ -17,13 +15,12 @@ from rest_framework.exceptions import APIException
 from dj_rest_auth.views import LoginView, LogoutView, PasswordChangeView
 from dj_rest_auth.serializers import LoginSerializer
 
-from .filters import PostsListFilter, UserListFilter
 from .forms import LoginUserForm, RegisterUserForm, UpdateUserForm
 from .models import User
 from announcement.models import Post
 from .serializer import UserArticleSerializer, UserRegisterSerializer, UserUpdateSerializer, \
     UserProfileSerializer
-from .services import return_response
+from .services import return_response, get_filter_posts_for_template
 
 
 class RegisterUser(APIView):
@@ -216,41 +213,36 @@ class ProfileDetail(generics.ListAPIView):
 
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_class = UserListFilter
-    # renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "cabinet/profile_list.html"
 
     def get_queryset(self):
         queryset = User.objects.filter(username=self.request.user.username)
         return queryset
 
-    # def get(self, request, *args, **kwargs):
-    #
-    #     try:
-    #         user = User.objects.get(id=kwargs['id'])
-    #     except ObjectDoesNotExist:
-    #         data = {'error': 'Пользователя не существует', 'status': 'HTTP_200_OK'}
-    #         if request.headers.get('Content-Type') == 'application/json':
-    #             return Response(data=data, status=status.HTTP_200_OK)
-    #         return Response({'error': data}, template_name='announcement/page_error.html')
-    #
-    #     if request.user != user:
-    #         data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_200_OK'}
-    #         if request.headers.get('Content-Type') == 'application/json':
-    #             return Response(data=data, status=status.HTTP_200_OK)
-    #         return Response({'error': data}, template_name='announcement/page_error.html')
-    #
-    #     # нужно для TemplateHTMLRenderer:
-    #     user_qs = User.objects.filter(username=self.request.user.username)
-    #     posts = Post.objects.filter(author=self.request.user.username).order_by("-date_create")
-    #     # posts_filter = self.filterset_class(self.request.GET, posts)
-    #     # print('фильтр', posts_filter.qs)
-    #     data = {'profile': user_qs, 'posts': posts}
-    #
-    #     if request.headers.get('Content-Type') == 'application/json':
-    #         return self.list(request, *args, **kwargs)
-    #     return Response(data=data, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        if not User.objects.filter(id=kwargs['id']).exists():
+            data = {'error': 'Пользователя не существует', 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
+                                   template='announcement/page_error.html')
+
+        user = User.objects.get(id=kwargs['id'])
+        if request.user != user:
+            data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
+                                   template='announcement/page_error.html')
+
+        if request.headers.get('Content-Type') == 'application/json':
+            return self.list(request, *args, **kwargs)
+
+        # нужно для TemplateHTMLRenderer:
+        user_qs = self.get_queryset()
+        date_after = request.query_params.get('date_after', None)
+        date_before = request.query_params.get('date_before', None)
+        category = request.query_params.get('category', None)
+        posts = get_filter_posts_for_template(user, date_after, date_before, category)
+        data = {'profile': user_qs, 'posts': posts}
+        return Response(data=data, status=status.HTTP_200_OK)
 
 
 class ProfileArticleDetail(generics.ListAPIView):
@@ -269,17 +261,17 @@ class ProfileArticleDetail(generics.ListAPIView):
         try:
             user = User.objects.get(username=kwargs['username'])
         except ObjectDoesNotExist:
-            data = {'error': 'Пользователя не существует', 'status': 'HTTP_200_OK'}
-            return return_response(request=request, data=data, status=status.HTTP_200_OK,
+            data = {'error': 'Пользователя не существует', 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                    template='announcement/page_error.html')
 
         if request.user != user:
-            data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_200_OK'}
-            return return_response(request=request, data=data, status=status.HTTP_200_OK,
+            data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                    template='announcement/page_error.html')
         elif not list(self.get_queryset()):
-            data = {"error": "Такой записи нет", 'status': 'HTTP_200_OK'}
-            return return_response(request=request, data=data, status=status.HTTP_200_OK,
+            data = {"error": "Такой записи нет", 'status': 'HTTP_204_NO_CONTENT'}
+            return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                    template='announcement/page_error.html')
 
         user_qs = User.objects.filter(username=self.request.user.username)
