@@ -81,10 +81,6 @@ CORS_ALLOW_HEADERS = ('content-disposition', 'accept-encoding',
                       'access-control-allow-credentials', 'attribution-reporting',
                       )
 
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:5173',
-# ]
-
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
@@ -229,4 +225,82 @@ REST_AUTH = {
    'TOKEN_CREATOR': 'dj_rest_auth.utils.default_create_token',
 
    'SESSION_LOGIN': True,
+}
+
+# Логирование
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'general_log_info': {
+            'format': '{asctime} - {levelname} - {module} - {message}',
+            'style': '{',
+        },
+        'error_log': {
+            'format': '{asctime} - {levelname} - {pathname} - {exc_info} - {message}',
+            'style': '{',
+        },
+        'security_log': {
+            'format': '{asctime} - {levelname} - {module} - {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',  # фильтр, который пропускает записи только в случае, когда DEBUG = True
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',  # фильтр, который пропускает записи только в случае, когда DEBUG = False
+        },
+    },
+    # Обработчики
+    'handlers': {
+        'file_general.log': {
+            'level': 'INFO',
+            'filters': ['require_debug_false'],
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'general.log',
+            'formatter': 'general_log_info',
+        },
+        'file_errors.log': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'errors.log',
+            'formatter': 'error_log',
+        },
+        'file_security.log': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'security.log',
+            'formatter': 'security_log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file_general.log'],
+            # 'level': 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file_errors.log'],
+            'level': "ERROR",
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['file_errors.log'],
+            'propagate': True,
+        },
+        'django.template': {
+            'handlers': ['file_errors.log'],
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['file_errors.log'],
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['file_security.log'],
+            'propagate': False,
+        },
+    },
 }
