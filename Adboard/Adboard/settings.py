@@ -15,7 +15,7 @@ DEBUG = True
 if DEBUG:
     ALLOWED_HOSTS = []
 else:
-    ALLOWED_HOSTS = ['localhost']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 AUTH_USER_MODEL = "cabinet.User"
 

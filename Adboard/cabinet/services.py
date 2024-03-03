@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from django.utils.translation import gettext_lazy
-from rest_framework.exceptions import APIException, ValidationError
+from django.http import Http404
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 from announcement.models import Post
@@ -16,7 +16,7 @@ class DateFilterException(APIException):
         try:
             datetime.strptime(date, format_date)
         except ValueError:
-            raise ValidationError(gettext_lazy(f"Значение {date} имеет неверный формат даты"))
+            raise Http404
 
 
 def return_response(request, data, status, template):
@@ -33,7 +33,8 @@ def return_response(request, data, status, template):
 def get_queryset_filter(author, date_after=None, date_before=None, category=None):
     """
     Фильтрация объявлений на странице пользователя (по другому не вышло фильтровать)
-    Используется в serializer.py: UserSerializer
+    Используется в .serializer: UserProfileSerializer
+    Пример: args_list = [True, None, True] -> binary_number = '101' -> decimal_number = 5 -> queryset in choice
     Возвращает фильтрованный queryset
     """
     args_list = [category, date_before, date_after]
@@ -87,6 +88,8 @@ def get_queryset_filter(author, date_after=None, date_before=None, category=None
 
 
 def get_filter_posts_for_template(author, date_after=None, date_before=None, category=None):
+    """ Используется для TemplateHTMLRenderer в .views: ProfileDetail """
+
     if not any([date_after, date_before, category]):
         queryset = Post.objects.filter(author=author)
     else:

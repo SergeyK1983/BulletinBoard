@@ -58,14 +58,13 @@ class BoardPageListView(generics.ListAPIView):
     template_name = "announcement/board_page.html"
 
     def get_queryset(self):
-        queryset = Post.objects.filter(id=self.kwargs['pk'])  # может вернуть пустой queryset
+        queryset = Post.objects.filter(id=self.kwargs['pk'])
         return queryset
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         if not list(queryset):
-            data = {'error': 'Такой страницы нет либо записей нет.',
-                    'status': 'HTTP_404_NOT_FOUND'}
+            data = {'error': 'Такой страницы нет либо записей нет.', 'status': 'HTTP_404_NOT_FOUND'}
             if request.headers.get('Content-Type') == 'application/json':
                 return Response(data, status=status.HTTP_404_NOT_FOUND)
             return Response({'error': data}, template_name='announcement/page_error.html')
@@ -102,15 +101,12 @@ class PageCreateView(generics.CreateAPIView):
             data_err = {'error': serializer.errors, 'status': 'HTTP_400_BAD_REQUEST'}
             if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                 return Response(data_err, status=status.HTTP_400_BAD_REQUEST)
-            return Response({'error': data_err}, template_name='announcement/page_error.html')
+            return Response(data={'error': data_err}, template_name='announcement/page_error.html')
 
         if serializer.is_valid(raise_exception=True):
             try:
                 serializer.save()
-                if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                return redirect('board_list')
-            except ValidationError as e:
+            except ValidationError as e:  # лимит на публикации
                 data_err = {'error': e.detail, 'status': 'HTTP_400_BAD_REQUEST'}
                 if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                     return Response(data_err, status=status.HTTP_400_BAD_REQUEST)
@@ -120,6 +116,10 @@ class PageCreateView(generics.CreateAPIView):
                 if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                     return Response(data_err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 return Response({'error': data_err}, template_name='announcement/page_error.html')
+
+            if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return redirect('board_list')
 
 
 class PageUpdateView(generics.RetrieveUpdateAPIView):
@@ -176,15 +176,16 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
             try:
                 # Если в .save() добавить owner=other/dict/, то добавит в validated_data и можно будет пользовать
                 serializer.save()
-                if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
-                    data_ = {'state': 1, 'message': 'Изменение прошло успешно'}
-                    return Response(data_, status=status.HTTP_200_OK)
-                return redirect('board_list')
             except APIException:
                 data_err = {'error': 'Сервер не отвечает.', 'status': 'HTTP_500_INTERNAL_SERVER_ERROR'}
                 if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
                     return Response(data_err, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 return Response({'error': data_err}, template_name='announcement/page_error.html')
+
+            if header.search(request.headers.get('Content-Type')) and data.get('mark') is None:
+                data_ = {'state': 1, 'message': 'Изменение прошло успешно'}
+                return Response(data_, status=status.HTTP_200_OK)
+            return redirect('board_list')
 
 
 class PageDestroyView(generics.DestroyAPIView):
