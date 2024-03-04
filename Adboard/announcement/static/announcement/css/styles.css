@@ -58,7 +58,7 @@ main {
     width: 315px;
     border-radius: 3%;
     margin: 8px 0px 8px 8px;
-    box-shadow: 5px 5px 8px #8c8f91 /*black;*/
+    box-shadow: 5px 5px 8px black; /*#8c8f91 /*black;*/
 }
 .post-top_side {
     display: flex;
@@ -126,7 +126,7 @@ main {
     background-color: #ebf1f7;
     margin: 8px 0px 8px 8px;
     padding: 8px;
-    box-shadow: 5px 5px 8px #8c8f91
+    box-shadow: 5px 5px 8px black; /*#8c8f91*/
 }
 
 .page-container{
@@ -137,7 +137,7 @@ main {
     background: #ebf1f7;
     border-radius: 8px;
     padding: 1%;
-    box-shadow: 5px 5px 8px #8c8f91 /*black;*/
+    box-shadow: 5px 5px 8px #8c8f91; /*black;*/
 }
 .page-item-1 {
     order: 1;
