@@ -58,7 +58,7 @@ class BoardPageListView(generics.ListAPIView):
     template_name = "announcement/board_page.html"
 
     def get_queryset(self):
-        queryset = Post.objects.filter(id=self.kwargs['pk'])
+        queryset = Post.objects.filter(pk=self.kwargs['id'])
         return queryset
 
     def get(self, request, *args, **kwargs):
@@ -74,7 +74,7 @@ class BoardPageListView(generics.ListAPIView):
         return Response({'board_page': queryset})
 
 
-class PageCreateView(generics.CreateAPIView):
+class PageCreateView(generics.ListCreateAPIView):
     """ Создание нового объявления """
 
     serializer_class = BoardPageSerializer
@@ -132,12 +132,12 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
     template_name = "announcement/update_page_form.html"
 
     def get_queryset(self):
-        queryset = Post.objects.filter(id=self.kwargs['pk'])
+        queryset = Post.objects.filter(id=self.kwargs['id'])
         return queryset
 
     def get(self, request, *args, **kwargs):
-        if Post.objects.filter(id=self.kwargs['pk']).exists():
-            if Post.objects.get(id=self.kwargs['pk']).author == request.user:
+        if Post.objects.filter(id=self.kwargs['id']).exists():
+            if Post.objects.get(id=self.kwargs['id']).author == request.user:
                 if request.headers.get('Content-Type') == 'application/json':
                     return self.retrieve(request, *args, **kwargs)
 
@@ -157,7 +157,7 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
 
     def post(self, request, *args, **kwargs):
         data = correct_form_category_for_serializer(request=request)
-        instance = get_object_or_404(Post, pk=kwargs['pk'])  # можно еще так self.get_object()
+        instance = get_object_or_404(Post, id=kwargs['id'])  # можно еще так self.get_object()
         serializer = BoardPageSerializer(instance=instance, data=data, context={'request': request})
         header = re.compile(r"^multipart/form-data")
 

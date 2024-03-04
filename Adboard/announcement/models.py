@@ -63,10 +63,10 @@ class Post(models.Model):
 
     def get_comment_my_post_url(self):
         """ view in coment """
-        return reverse(viewname='comments-to-post', kwargs={'username': self.author.username, 'pk': self.id})
+        return reverse(viewname='comments-to-post', kwargs={'username': self.author.username, 'id': self.id})
 
     def get_absolute_url(self):
-        return reverse(viewname='board_page', kwargs={'pk': self.id})
+        return reverse(viewname='board_page', kwargs={'id': self.id})
 
 
 class Category(models.Model):

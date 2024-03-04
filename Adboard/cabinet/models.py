@@ -30,4 +30,4 @@ class User(AbstractUser):
         return reverse(viewname='my-comment', kwargs={'username': self.username})
 
     def get_absolute_url(self):
-        return reverse(viewname='profile', kwargs={'pk': self.id})
+        return reverse(viewname='profile', kwargs={'id': self.id})

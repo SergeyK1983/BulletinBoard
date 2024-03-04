@@ -7,7 +7,7 @@ from .tasks import send_mail_author_when_comment_accepted
 
 
 @receiver(post_save, sender=CommentaryToAuthor)
-def email_to_author_when_comment_accepted(sender, instance, **kwargs):
+def email_to_author_when_comment_accepted(sender, instance, created, **kwargs):
     """ Отправка письма автору отклика/комментария, когда автор объявления примет отклик/комментарий """
 
     comment = CommentaryToAuthor.objects.filter(accepted=True).last()
@@ -24,4 +24,5 @@ def email_to_author_when_comment_accepted(sender, instance, **kwargs):
             'author_post': author_post,
         }
     )
-    send_mail_author_when_comment_accepted.delay(email_author_comment, html_content)
+    if not created:
+        send_mail_author_when_comment_accepted.delay(email_author_comment, html_content)

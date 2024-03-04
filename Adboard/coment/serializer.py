@@ -9,9 +9,9 @@ def validate_queryset_to_post(self):
     """
     Проверка, что запись действительно существует перед выдачей экземпляра. Использовано в CommentSerializer.
     """
-    if not Post.objects.filter(pk=self._context['kwargs']['pk']).exists():
+    if not Post.objects.filter(id=self._context['kwargs']['id']).exists():
         raise serializers.ValidationError({"Detail": "Такой публикации нет ..."})
-    instance = Post.objects.get(pk=self._context['kwargs']['pk'])
+    instance = Post.objects.get(id=self._context['kwargs']['id'])
     return instance
 
 

@@ -27,5 +27,5 @@ class CommentaryToAuthor(models.Model):
         return self.id
 
     def get_accepted_url(self):
-        return reverse(viewname='to-accepted', kwargs={'pk': self.id})
+        return reverse(viewname='to-accepted', kwargs={'id': self.id})
 

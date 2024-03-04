@@ -20,7 +20,7 @@ class PostCommentList(generics.RetrieveUpdateAPIView):
     template_name = "cabinet/profile_commentary_to_my_post.html"
 
     def get_queryset(self):
-        queryset = CommentaryToAuthor.objects.filter(to_post__id=self.kwargs['pk']).order_by("-date_create")
+        queryset = CommentaryToAuthor.objects.filter(to_post__id=self.kwargs['id']).order_by("-date_create")
         return queryset
 
     def get(self, request, *args, **kwargs):
@@ -32,7 +32,7 @@ class PostCommentList(generics.RetrieveUpdateAPIView):
             return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                    template='announcement/page_error.html')
 
-        if not Post.objects.filter(pk=kwargs['pk']).exists():
+        if not Post.objects.filter(id=kwargs['id']).exists():
             data = {"error": "Такой публикации нет ...", 'status': 'HTTP_204_NO_CONTENT'}
             return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                    template='announcement/page_error.html')
@@ -85,8 +85,8 @@ class CommentCreateView(generics.CreateAPIView):
         if request.headers.get('Content-Type') == 'application/json':
             return Response(data={"Detail": "Метод GET не разрешен"}, status=status.HTTP_200_OK)
 
-        if Post.objects.filter(pk=kwargs['pk']).exists():
-            to_post = Post.objects.filter(pk=kwargs['pk'])
+        if Post.objects.filter(id=kwargs['id']).exists():
+            to_post = Post.objects.filter(id=kwargs['id'])
             user = User.objects.get(username=request.user.username)
             initial = {
                 'author': user.username,
@@ -107,7 +107,7 @@ class CommentCreateView(generics.CreateAPIView):
 
         if request.headers.get('Content-Type') == 'application/json':
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return redirect('board_page', kwargs['pk'])
+        return redirect('board_page', kwargs['id'])
 
 
 class CommentAcceptedUpdateView(generics.UpdateAPIView):
@@ -119,7 +119,7 @@ class CommentAcceptedUpdateView(generics.UpdateAPIView):
     template_name = "cabinet/profile_commentary_to_my_post.html"
 
     def get_queryset(self):
-        queryset = CommentaryToAuthor.objects.filter(id=self.kwargs['pk'])
+        queryset = CommentaryToAuthor.objects.filter(id=self.kwargs['id'])
         return queryset
 
     def post(self, request, *args, **kwargs):

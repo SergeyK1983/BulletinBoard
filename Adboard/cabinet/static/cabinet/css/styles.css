@@ -18,7 +18,7 @@ main {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    background-color: #fffff1;
+    /*background-color: #fffff1;*/
     height: 100%;
     width: 100%;
 }
@@ -231,6 +231,7 @@ footer {
     justify-content: center;
     align-items: center;
     background-color: #333635;
+    color: white;
     height: 8vh;
     width: 100%;
 }

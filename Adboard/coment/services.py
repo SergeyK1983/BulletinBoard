@@ -28,10 +28,10 @@ def get_check_user(request, **kwargs):
     return True
 
 
-def get_check_post_pk(request, **kwargs):
+def get_check_post_id(request, **kwargs):
     """ Такая же фигня """
 
-    if not Post.objects.filter(pk=kwargs['pk']).exists():
+    if not Post.objects.filter(id=kwargs['id']).exists():
         data = {"error": "Такой публикации нет ...", 'status': 'HTTP_204_NO_CONTENT'}
         return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                template='announcement/page_error.html')
