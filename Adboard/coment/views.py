@@ -1,10 +1,12 @@
 from django.shortcuts import redirect
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status, permissions
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 
 from announcement.models import Post
 from cabinet.models import User
+from .filters import CommentListFilter
 from .forms import CommentCreateForm
 from .serializer import CommentSerializer, CommentListSerializer, CommentAcceptedSerializer
 from .models import CommentaryToAuthor
@@ -50,6 +52,8 @@ class UserCommentList(generics.ListAPIView):
 
     serializer_class = CommentListSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CommentListFilter
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "cabinet/profile_my_commentary.html"
 
@@ -59,6 +63,7 @@ class UserCommentList(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+        filter_comment = self.filterset_class(self.request.GET, queryset)
 
         user = generics.get_object_or_404(User, username=kwargs['username'])
         if request.user != user:
@@ -70,7 +75,7 @@ class UserCommentList(generics.ListAPIView):
 
         if request.headers.get('Content-Type') == 'application/json':
             return self.list(request, *args, **kwargs)
-        return Response({"profile": user_qs, "comments": queryset, "com_page": True})
+        return Response({"profile": user_qs, "comments": filter_comment.qs, "com_page": True})
 
 
 class CommentCreateView(generics.CreateAPIView):
