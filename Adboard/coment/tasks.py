@@ -14,3 +14,14 @@ def send_mail_author_when_comment_accepted(email_author_comment, html_content):
         recipient_list=[email_author_comment],
         html_message=html_content,
     )
+
+
+@app.task
+def send_mail_author_announcement_when_comment(author_post_email, html_content):
+    send_mail(
+        subject='Доска объявлений',
+        message='',
+        from_email=SERVER_EMAIL,
+        recipient_list=[author_post_email],
+        html_message=html_content,
+    )
