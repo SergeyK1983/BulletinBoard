@@ -35,7 +35,7 @@ class BoardListView(generics.ListAPIView):
         queryset = self.get_queryset()
         filter_board = self.filterset_class(self.request.GET, queryset)
         qs = filter_board.qs
-        # print(len(qs))  ели пагинация будет глючить, использовать для подсчета страничек
+        self.pagination_class.len_filter_qs = len(qs)  # для подсчета числа страничек, по другому будет глючить
         pages = self.paginate_queryset(queryset=qs)
 
         if request.headers.get('Content-Type') == 'application/json':
