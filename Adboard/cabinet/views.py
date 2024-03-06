@@ -24,7 +24,7 @@ from .services import return_response, get_filter_posts_for_template
 
 
 class RegisterUser(APIView):
-    """ Регистрация """
+    """ Регистрация. В основе dj_rest_auth. """
 
     serializer_class = UserRegisterSerializer
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
@@ -250,11 +250,11 @@ class ProfileArticleDetail(generics.ListAPIView):
 
     serializer_class = UserArticleSerializer
     permission_classes = [permissions.IsAuthenticated]
-    renderer_classes = [TemplateHTMLRenderer]
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     template_name = "cabinet/profile_article.html"
 
     def get_queryset(self, **kwargs):
-        queryset = Post.objects.filter(id=self.kwargs['id'])
+        queryset = User.objects.filter(username=self.kwargs['username'])
         return queryset
 
     def get(self, request, *args, **kwargs):
@@ -269,13 +269,14 @@ class ProfileArticleDetail(generics.ListAPIView):
             data = {"error": "Тут нет вашей страницы", 'status': 'HTTP_204_NO_CONTENT'}
             return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                    template='announcement/page_error.html')
-        elif not list(self.get_queryset()):
+
+        if not Post.objects.filter(id=kwargs['id']).exists():
             data = {"error": "Такой записи нет", 'status': 'HTTP_204_NO_CONTENT'}
             return return_response(request=request, data=data, status=status.HTTP_204_NO_CONTENT,
                                    template='announcement/page_error.html')
 
-        user_qs = User.objects.filter(username=self.request.user.username)
-        posts = Post.objects.filter(id=self.kwargs['id'])
+        user_qs = User.objects.filter(username=request.user.username)
+        posts = Post.objects.filter(id=kwargs['id'])
         data = {'profile': user_qs, 'posts': posts}
 
         if request.headers.get('Content-Type') == 'application/json':

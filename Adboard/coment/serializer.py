@@ -20,7 +20,7 @@ class CommentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CommentaryToAuthor
-        fields = ('author', 'to_post', 'comment', 'accepted', 'date_create')
+        fields = ('id', 'author', 'to_post', 'comment', 'accepted', 'date_create')
 
 
 class CommentSerializer(serializers.ModelSerializer):

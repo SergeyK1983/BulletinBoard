@@ -23,7 +23,7 @@ class User(AbstractUser):
             return self.photo.url
 
     def __str__(self):
-        return f"{self.pk} - {self.username}"
+        return f"{self.id} - {self.username}"
 
     def get_commentary_url(self):
         """ view in coment """

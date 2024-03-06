@@ -135,6 +135,10 @@ class PageUpdateView(generics.RetrieveUpdateAPIView):
         queryset = Post.objects.filter(id=self.kwargs['id'])
         return queryset
 
+    def get_object(self):
+        obj = Post.objects.get(id=self.kwargs['id'])
+        return obj
+
     def get(self, request, *args, **kwargs):
         if Post.objects.filter(id=self.kwargs['id']).exists():
             if Post.objects.get(id=self.kwargs['id']).author == request.user:
@@ -197,12 +201,17 @@ class PageDestroyView(generics.DestroyAPIView):
     template_name = "announcement/destroy_page.html"
     queryset = Post.objects.all()
 
+    def get_object(self):
+        obj = get_object_or_404(self.queryset, id=self.kwargs['id'])
+        return obj
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.author != request.user:
             if request.headers.get('Content-Type') == 'application/json':
                 return Response(data={'error': 'так нельзя делать!'}, status=status.HTTP_200_OK)
             return redirect('profile', request.user.id)
+
         self.perform_destroy(instance)
         if request.headers.get('Content-Type') == 'application/json':
             return Response(data={'status': 'Публикация удалена!'}, status=status.HTTP_204_NO_CONTENT)

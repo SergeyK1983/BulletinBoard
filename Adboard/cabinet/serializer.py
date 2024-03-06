@@ -20,7 +20,8 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     """ Публикации авторов """
 
-    category = CategorySerializer(label="Категории")
+    # author = AuthorSerializer()
+    category = CategorySerializer()
 
     class Meta:
         model = Post
@@ -55,11 +56,12 @@ class AuthorSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(AuthorSerializer):
     """ Для просмотра страницы пользователя """
 
-    posts = serializers.SerializerMethodField()
+    posts = serializers.SerializerMethodField("get_posts")
 
     class Meta(AuthorSerializer.Meta):
         model = User
-        AuthorSerializer.Meta.fields.append('posts')
+        fields = AuthorSerializer.Meta.fields.copy()
+        fields.append('posts')
 
     def get_posts(self, instance):
         author = self.context['request'].user.username
@@ -73,10 +75,20 @@ class UserProfileSerializer(AuthorSerializer):
         return ProfileSerializer(queryset.order_by('-date_create'), many=True).data
 
 
-class UserArticleSerializer(ProfileSerializer):
+class UserArticleSerializer(AuthorSerializer):
     """ Для просмотра публикации со страницы пользователя """
 
-    author = AuthorSerializer()
+    post = serializers.SerializerMethodField("get_post")
+
+    class Meta:
+        model = User
+        fields = AuthorSerializer.Meta.fields.copy()
+        fields.append('post')
+
+    def get_post(self, instance):
+        id_post = self.context['view'].kwargs['id']
+        queryset = instance.posts.filter(id=id_post)
+        return ProfileSerializer(queryset, many=True).data
 
 
 class UserUpdateSerializer(AuthorSerializer):
@@ -84,7 +96,6 @@ class UserUpdateSerializer(AuthorSerializer):
 
     class Meta(AuthorSerializer.Meta):
         fields = AuthorSerializer.Meta.fields.copy()
-        fields.remove('posts')
         fields.remove('id')
 
     def validate_email(self, email):
