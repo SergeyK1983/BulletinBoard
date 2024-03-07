@@ -31,9 +31,9 @@ ___
 
 ### API endpoint-s:
 
-#### ann
+### ann
 
-GET. Header: Content-Type = application/json.\
+**GET**. Header: Content-Type = application/json.\
 Вывод карточек всех объявлений на странице.\
 Фильтры: author, category (DD, FR, GM, HL, MCH, PM, QG, SM, TK, TN), date_after, date_before
 
@@ -62,18 +62,18 @@ GET. Header: Content-Type = application/json.\
       ]
     }
 
-GET. Header: Content-Type = application/json.\
+**GET**. Header: Content-Type = application/json.\
 Вывод страницы с объявлением
 
     /ann/v1/adboard/page/<int:id>/
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Создание нового объявления
 
     /ann/v1/adboard/page/create/
     {"Detail": "Метод GET не разрешен"}
 
-POST. Header: Content-Type = multipart/form-data. Authorization = Token ...\
+**POST**. Header: Content-Type = multipart/form-data. Authorization = Token ...\
 Создание нового объявления
 
     /ann/v1/adboard/page/create/
@@ -84,12 +84,12 @@ POST. Header: Content-Type = multipart/form-data. Authorization = Token ...\
     images = file
     files = file
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Изменение объявления
 
     /ann/v1/adboard/page/<int:id>/update/
 
-POST. Header: Content-Type = multipart/form-data. Authorization = Token ...\
+**POST**. Header: Content-Type = multipart/form-data. Authorization = Token ...\
 Изменение объявления
 
     /ann/v1/adboard/page/<int:id>/update/
@@ -105,32 +105,32 @@ POST. Header: Content-Type = multipart/form-data. Authorization = Token ...\
     "message": "Изменение прошло успешно"
     }
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Удаление объявления
 
     /ann/v1/adboard/page/<int:id>/destroy/
     {'msg': 'Удаление публикаций', 'method': 'POST'}
 
-POST. Header: Content-Type = application/json. Authorization = Token ...\
+**POST**. Header: Content-Type = application/json. Authorization = Token ...\
 Удаление объявления
 
     /ann/v1/adboard/page/<int:id>/destroy/
     {'status': 'Публикация удалена!'}
 
-#### cab
+### cab
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Страница пользователя
 Фильтры: category (DD, FR, GM, HL, MCH, PM, QG, SM, TK, TN)-select, date_after, date_before
 
     /cab/v1/profile/<int:id>/
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Страница просмотра конкретной публикации пользователя
 
     /cab/v1/profile/<str:username>/<int:id>/
 
-GET. Header: Content-Type = application/json\
+**GET**. Header: Content-Type = application/json\
 Аутентификация (dj_rest_auth)
 
     /cab/v1/profile/login/
@@ -142,7 +142,7 @@ GET. Header: Content-Type = application/json\
     "content-type": "multipart/form-data"
     }
 
-POST. Header: Content-Type = multipart/form-data\
+**POST**. Header: Content-Type = multipart/form-data\
 Аутентификация (dj_rest_auth)
 
     /cab/v1/profile/login/
@@ -153,13 +153,13 @@ POST. Header: Content-Type = multipart/form-data\
 
     {"key": "99b830f2be4f456d25b966f441bd5d009e1f0517"}
 
-POST. Header: Content-Type = application/json. Authorization = Token ...\
+**POST**. Header: Content-Type = application/json. Authorization = Token ...\
 Выход (dj_rest_auth)
 
     /cab/v1/profile/logout/
     {"detail": "Успешно вышли."}
 
-GET. Header: Content-Type = application/json\
+**GET**. Header: Content-Type = application/json\
 Регистрация (dj_rest_auth)
 
     /cab/v1/profile/register/
@@ -172,7 +172,7 @@ GET. Header: Content-Type = application/json\
     "content-type": "multipart/form-data"
     }
 
-POST. Header: Content-Type = multipart/form-data\
+**POST**. Header: Content-Type = multipart/form-data\
 Регистрация (dj_rest_auth)
 
     /cab/v1/profile/register/
@@ -183,19 +183,19 @@ POST. Header: Content-Type = multipart/form-data\
     "email": "examp4@yandex.ru"
     }
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Удаление пользователя (dj_rest_auth)
 
     /cab/v1/profile/destroy/
     {'msg': 'Удаление аккаунта', 'method': 'POST'}
 
-POST. Header: Content-Type = application/json. Authorization = Token ...\
+**POST**. Header: Content-Type = application/json. Authorization = Token ...\
 Удаление пользователя (dj_rest_auth)
 
     /cab/v1/profile/destroy/
     {'status': 'Аккаунт пользователя удален'}
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Изменение данных пользователя
 
     /cab/v1/profile/update/
@@ -212,7 +212,7 @@ GET. Header: Content-Type = application/json. Authorization = Token ...\
     "content-type": "multipart/form-data"
     }
 
-POST. Header: Content-Type = multipart/form-data. Authorization = Token ...\
+**POST**. Header: Content-Type = multipart/form-data. Authorization = Token ...\
 Изменение данных пользователя
 
     /cab/v1/profile/update/
@@ -229,7 +229,7 @@ POST. Header: Content-Type = multipart/form-data. Authorization = Token ...\
     "message": "Изменение прошло успешно"
     }
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Изменение пароля (dj_rest_auth)
 
     /cab/v1/profile/change-pass/
@@ -242,7 +242,7 @@ GET. Header: Content-Type = application/json. Authorization = Token ...\
     "content-type": "application/json"
     }
 
-POST. Header: Content-Type = application/json. Authorization = Token ...\
+**POST**. Header: Content-Type = application/json. Authorization = Token ...\
 Изменение пароля (dj_rest_auth)
 
     /cab/v1/profile/change-pass/
@@ -256,15 +256,15 @@ POST. Header: Content-Type = application/json. Authorization = Token ...\
     "detail": "Новый пароль сохранён."
     }
 
-#### com
+### com
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Создание комментария к объявлению
 
     /com/v1/add-comment/<int:id>/
     {"Detail": "Метод GET не разрешен"}
 
-POST. Header: Content-Type = application/json. Authorization = Token ...\
+**POST**. Header: Content-Type = application/json. Authorization = Token ...\
 Создание комментария к объявлению
 
     /com/v1/add-comment/<int:id>/
@@ -277,18 +277,18 @@ POST. Header: Content-Type = application/json. Authorization = Token ...\
     "comment": "Новый комментарий"
     }
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Просмотр своих комментариев к объявлениям других авторов на своей странице
 Фильтры: author, category (DD, FR, GM, HL, MCH, PM, QG, SM, TK, TN), date_after, date_before
 
     /com/v1/<str:username>/my-comment/
 
-GET. Header: Content-Type = application/json. Authorization = Token ...\
+**GET**. Header: Content-Type = application/json. Authorization = Token ...\
 Просмотр комментариев к своему объявлению
     
     /com/v1/<str:username>/<int:id>/comments-to-post/
 
-POST. Header: Content-Type = application/json. Authorization = Token ...\
+**POST**. Header: Content-Type = application/json. Authorization = Token ...\
 Изменение статуса комментария на принято (accepted).
     
     /com/v1/comments-to-accepted/<int:id>/
