@@ -75,6 +75,12 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
     'DATETIME_FORMAT': "%d.%m.%Y %H:%M:%S",  # формат вывода времени в ответах
+
+    # 'TEST_REQUEST_RENDERER_CLASSES': [
+    #     'rest_framework.renderers.MultiPartRenderer',
+    #     'rest_framework.renderers.JSONRenderer',
+    #     'rest_framework.renderers.TemplateHTMLRenderer'
+    # ],
 }
 
 SPECTACULAR_SETTINGS = {
