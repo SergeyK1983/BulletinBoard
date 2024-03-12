@@ -22,6 +22,8 @@ class TestAnnouncement(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
 
     def test_BoardListView(self):
+        """ Просмотр всех объявлений """
+
         url = reverse(viewname='board_list')
         response = self.client.get(url, content_type='application/json')
         js = response.json()
@@ -32,6 +34,8 @@ class TestAnnouncement(APITestCase):
         self.assertEqual(js['board_list'][0]['title'], 'title')
 
     def test_BoardPageListView(self):
+        """ Просмотр одного объявления """
+
         url = reverse(viewname='board_page', kwargs={'id': self.ann_page.id})
         response = self.client.get(url, content_type='application/json')
         js = response.json()
@@ -40,6 +44,8 @@ class TestAnnouncement(APITestCase):
         self.assertEqual(js[0]['author'], 'Serg')
 
     def test_BoardPageList_fail(self):
+        """ Просмотр несуществующего объявлений """
+
         url = reverse(viewname='board_page', kwargs={'id': 100})
         response = self.client.get(url, content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -49,6 +55,8 @@ class TestAnnouncement(APITestCase):
         })
 
     def test_PageCreateView(self):
+        """ Создание объявления """
+
         data = {'category': 'FR', 'title': 'Кузнец', 'article': 'New post'}
         response = self.client.post(reverse('board-page-create'), data, format='multipart')
         instanse = Post.objects.all().last()
@@ -57,6 +65,8 @@ class TestAnnouncement(APITestCase):
         self.assertEqual(instanse.category.categories, "FR")
 
     def test_PageCreateView_fail(self):
+        """ Создание объявления с ошибкой """
+
         data = {'category': 'FR1', 'title': 'Кузнец', 'article': 'New post'}
         response = self.client.post(reverse('board-page-create'), data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
