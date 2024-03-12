@@ -19,5 +19,5 @@ def email_registration(sender, created, **kwargs):
             'username': user.username,
         }
     )
-    # if created:
-    #     send_mail_user_registration.delay(email_user, html_content)
+    if created:
+        send_mail_user_registration.delay(email_user, html_content)

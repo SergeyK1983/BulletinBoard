@@ -8,7 +8,7 @@ from announcement.models import Post, Category
 from ..models import CommentaryToAuthor
 
 
-class TestAnnouncement(APITestCase):
+class TestComment(APITestCase):
     def setUp(self):
         self.author_post = User.objects.create(username="Sergey", email="exam1@gmail.com", password="wqxz9012")
         self.author_comment = User.objects.create(username="Dima", email="exam2@gmail.com", password="wqxz9012")

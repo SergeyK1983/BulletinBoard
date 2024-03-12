@@ -25,8 +25,8 @@ def email_to_author_when_comment_accepted(sender, instance, created, **kwargs):
                 'author_post': author_post,
             }
         )
-        # if not created:
-        #     send_mail_author_when_comment_accepted.delay(email_author_comment, html_content)
+        if not created:
+            send_mail_author_when_comment_accepted.delay(email_author_comment, html_content)
 
 
 @receiver(post_save, sender=CommentaryToAuthor)
@@ -47,5 +47,5 @@ def email_to_author_when_comment(sender, instance, created, **kwargs):
             'author_post': author_post,
         }
     )
-    # if created:
-    #     send_mail_author_announcement_when_comment.delay(author_post_email, html_content)
+    if created:
+        send_mail_author_announcement_when_comment.delay(author_post_email, html_content)
