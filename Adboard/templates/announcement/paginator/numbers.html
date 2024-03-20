@@ -34,7 +34,11 @@
             {% endif %}
 
             {% if last_page.is_active %}
-                <li class="active"><a href="{{ context.page_links.3.url }}">{{ context.page_links.3.number }}</a></li>
+                {% if context.page_links|length == 3 %}
+                    <li class="active"><a href="{{ context.page_links.1.url }}">{{ context.page_links.1.number }}</a></li>
+                {% else %}
+                    <li class="active"><a href="{{ context.page_links.3.url }}">{{ context.page_links.3.number }}</a></li>
+                {% endif %}
                 <li> стр. {{ pages_count }}</li>
             {% else %}
                 <li class="active"><a href="{{ last_page.url }}">{{ pages_count }}</a></li>

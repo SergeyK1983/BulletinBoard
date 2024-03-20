@@ -57,7 +57,7 @@ class BoardPageSerializer(serializers.ModelSerializer):
 
     def check_post_date_limit(self):
         user = self.context['request'].user.username
-        if Post.objects.filter(author=user, date_create__date=date.today()).count() > 5:
+        if Post.objects.filter(author=user, date_create__date=date.today()).count() > 50:
             raise serializers.ValidationError(gettext_lazy("Вы превысили лимит объявлений за сутки"), )
 
     @staticmethod
